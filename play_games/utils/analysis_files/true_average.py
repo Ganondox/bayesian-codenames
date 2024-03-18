@@ -95,7 +95,7 @@ def sliding_wt(arr, limit):
 def average(*files):
     stats = {}
 
-    codemasters={"w2v distance associator", "cn_nb distance associator", "elmo distance associator", "bert distance associator", "glove 100 distance associator", "glove 200 distance associator", "glove 300 distance associator", "w2v_glove50 distance associator"}
+    spymasters={"w2v distance associator", "cn_nb distance associator", "elmo distance associator", "bert distance associator", "glove 100 distance associator", "glove 200 distance associator", "glove 300 distance associator", "w2v_glove50 distance associator"}
     guessers={"w2v baseline guesser", "cn_nb baseline guesser", "elmo baseline guesser", "bert baseline guesser", "glove 100 baseline guesser", "glove 200 baseline guesser", "glove 300 baseline guesser", "w2v_glove300 baseline guesser"}
 
 
@@ -106,7 +106,7 @@ def average(*files):
             data = json.load(f)
         
         for i, (cm, row) in enumerate(data.items()):
-            if cm not in codemasters: continue
+            if cm not in spymasters: continue
 
             if cm not in stats:
                 stats[cm] = {}

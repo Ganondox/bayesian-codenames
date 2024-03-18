@@ -18,14 +18,6 @@ class FileRunner():
     def run_tournament(self, seed=0):
         run_tournament = RunTournament(self.object_manager)
         run_tournament.run(seed=seed)
-    
-    def run_rand_tournament(self, seed=0):
-        run_tournament = RunRandTournament(self.object_manager)
-        run_tournament.run( seed=seed)
-
-    def run_parameter_experiment(self):
-        run_parameter_experiment = RunParameterExperiment(self.object_manager)
-        run_parameter_experiment.run()
 
     def run_learning_experiment(self):
         #There will be some sort of check to see if we just want to analyze results. If so, we do so here

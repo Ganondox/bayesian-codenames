@@ -7,7 +7,7 @@ authors: Kim et al., Spencer Brosnahan, and Dallin Hunter
 import random
 import time
 from typing import TextIO
-from play_games.bots.codemasters.codemaster import Codemaster
+from play_games.bots.spymasters.spymaster import Spymaster
 from play_games.bots.guessers.guesser import Guesser
 from play_games.bots.types import BotType
 from play_games.games.enums import Color, GameCondition
@@ -18,7 +18,7 @@ NUM_BYST = 7
 NUM_ASSA = 1
 
 class Game:
-    """Class that setups up game details and calls Guesser/Codemaster pair to play the game
+    """Class that setups up game details and calls Guesser/Spymaster pair to play the game
     """
     board_words: list[str]
     key_grid: list[Color]
@@ -32,10 +32,10 @@ class Game:
     previous_guesses: set[str]
     clues_used: set[str]
     
-    def __init__(self, btype1: BotType, btype2: BotType, codemaster: Codemaster, guesser: Guesser, board_words, seed, outfile:TextIO, print_boards=False):
+    def __init__(self, btype1: BotType, btype2: BotType, spymaster: Spymaster, guesser: Guesser, board_words, seed, outfile:TextIO, print_boards=False):
         self.btype1 = btype1
         self.btype2 = btype2
-        self.codemaster = codemaster
+        self.spymaster = spymaster
         self.guesser = guesser
         self.outfile = outfile
         self.do_print = print_boards
@@ -47,7 +47,7 @@ class Game:
         
 
     def assign_words(self, words):
-        colors = [Color.TEAM] * NUM_TEAM + [Color.OPPONENT] * NUM_OPPONENT + [Color.BYST] * NUM_BYST + [Color.ASSA]
+        colors = [Color.TEAM] * NUM_TEAM + [Color.OPPONENT] * NUM_OPPONENT + [Color.BYSTANDER] * NUM_BYST + [Color.ASSASSIN]
         zipped = list(zip(words, colors))
         random.shuffle(zipped)
 
@@ -63,7 +63,7 @@ class Game:
         self.clues_used = set()
 
     def run(self):
-        """Function that runs the codenames game between codemaster and guesser"""
+        """Function that runs the codenames game between spymaster and guesser"""
         game_condition = GameCondition.CONTINUE
         round = 0
  
@@ -81,8 +81,8 @@ class Game:
                 f"num_red_words_left: {len(self.red_words)}\n"
             )
 
-            # codemaster gives clue & number here
-            clue, clue_num = self._get_codemaster_clue()
+            # spymaster gives clue & number here
+            clue, clue_num = self._get_spymaster_clue()
             guesses = self._get_guesser_guesses(clue, clue_num)
 
             for guess_num, guess_answer in enumerate(guesses[:clue_num], 1):
@@ -93,7 +93,7 @@ class Game:
                 self.outfile.write(f"guess: {guess_answer}\n")
                 game_condition = self._accept_guess(guess_answer_index, guess_answer)
                 self._give_bots_feedback(game_condition, guess_answer, color_guessed)
-                self._display_board_codemaster()
+                self._display_board_spymaster()
 
                 if game_condition != GameCondition.CONTINUE: 
                     self.game_end_time = time.time()
@@ -105,9 +105,9 @@ class Game:
         self.outfile.write('\n')
 
     def _log_initial_message(self, seed):
-        game_string = f"CODEMASTER: {self._get_bot_descr(self.btype1, self.codemaster)}\nGUESSER: {self._get_bot_descr(self.btype2, self.guesser)}\n"
+        game_string = f"SPYMASTER: {self._get_bot_descr(self.btype1, self.spymaster)}\nGUESSER: {self._get_bot_descr(self.btype2, self.guesser)}\n"
         self.outfile.write(game_string)
-        self._display_board_codemaster()
+        self._display_board_spymaster()
         self.outfile.write(f"seed: {seed}\n")
         self.outfile.write("board_words: " + str(self.board_words) + '\n\n')
 
@@ -117,8 +117,8 @@ class Game:
         else:
             return self.board_words[index]
     
-    def _display_board_codemaster(self):
-        """prints out board with color-paired words, only for codemaster, color && stylistic"""
+    def _display_board_spymaster(self):
+        """prints out board with color-paired words, only for spymaster, color && stylistic"""
         if self.do_print:
             print(str.center("BOARD", 79, '_')+'\n', file=self.outfile)
             for counter in range(len(self.board_words)):
@@ -146,31 +146,31 @@ class Game:
             case Color.OPPONENT:
                 self.blue_words.remove(guess)
                 self.outfile.write("incorrect guess\n")
-            case Color.ASSA:
+            case Color.ASSASSIN:
                 self.outfile.write("assassin guessed\n")
-            case Color.BYST:
+            case Color.BYSTANDER:
                 self.bystander_words.remove(guess)
                 self.outfile.write("bystander guessed\n")
         
         if len(self.red_words) <= 0:
             self.outfile.write("game won\n")
             condition = GameCondition.WIN 
-        elif color_guessed == Color.ASSA or len(self.blue_words) <= 0:
+        elif color_guessed == Color.ASSASSIN or len(self.blue_words) <= 0:
             self.outfile.write("game lost\n")
             condition = GameCondition.LOSS
         
         return condition
         
     def _give_bots_feedback(self, status, guess, color):
-        self.codemaster.give_feedback(guess, status)
-        self.guesser.give_feedback(status, color)
+        self.spymaster.give_feedback(guess, color, status)
+        self.guesser.give_feedback(guess, color, status)
 
     def _get_bot_descr(self, bot_type, bot_inst):
         return bot_type if not hasattr(bot_inst, '__desc__') else bot_inst.__desc__()
 
-    def _get_codemaster_clue(self):
+    def _get_spymaster_clue(self):
         clue_giving_start = time.time()
-        clue, targets = self.codemaster.generate_clue(self.red_words[:], self.clues_used.copy(), self.blue_words[:], self.assassin_word,  self.bystander_words[:])                                                   
+        clue, targets = self.spymaster.generate_clue(self.red_words[:], self.clues_used.copy(), self.blue_words[:], self.assassin_word,  self.bystander_words[:])                                                   
         self.outfile.write(f"clue: {clue}\ntargets: {targets}\nnum_targets: {len(targets)}\n")        
         self.clues_used.add(clue)
         clue_giving_time = time.time() - clue_giving_start

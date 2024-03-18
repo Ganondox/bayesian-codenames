@@ -14,5 +14,11 @@ class Color(enum.IntEnum):
 
     RED = 0
     BLUE = 1
-    BYST = 2
-    ASSA = 3
+    BYSTANDER = 2
+    ASSASSIN = 3
+
+    def team(color):
+        return Color(color)
+    
+    def opponent(color):
+        return Color((color+1)%2)

@@ -10,7 +10,6 @@ be kept for all the files.
 import json
 import configparser
 
-from play_games.bots.ai_components.ensemble_ai_components.ensemble_utils import LearningAlgorithms
 from play_games.configs.enums import ExperimentType, IndependentVariables, ConfigKeys
 from play_games.bots.types import BotType
 
@@ -46,7 +45,6 @@ class ExperimentSettings:
     variable_space: list[float | int] | None
 
     #Learning experiment settings
-    learning_algorithm: LearningAlgorithms | None
     iteration_range: list[int, int] | None
     include_same_lm: bool
     ensemble_parameters: float | None
@@ -54,7 +52,7 @@ class ExperimentSettings:
     n_games: int
     board_size: int
     seed = float | int | str 
-    codemasters: list[BotType]
+    spymasters: list[BotType]
     guessers: list[BotType]
 
     def __init__(self):
@@ -84,7 +82,6 @@ class ExperimentSettings:
         self.independent_variable = read_enum(IndependentVariables, config_section, ConfigKeys.INDEPENDENT_VARIABLE, fallback=None)
         self.variable_space = read_json(config_section, ConfigKeys.VARIABLE_SPACE, fallback=None)
 
-        self.learning_algorithm = read_enum(LearningAlgorithms, config_section, ConfigKeys.LEARNING_ALGORITHM, accept_null=True, fallback=None)
         self.iteration_range = read_list(int, config_section, ConfigKeys.ITERATION_RANGE, accept_null=True, fallback=None)
         self.include_same_lm = read_boolean(config_section, ConfigKeys.INCLUDE_SAME_LM, fallback=True)
         self.ensemble_parameters = read_float(config_section, ConfigKeys.ENSEMBLE_PARAMETERS, fallback=0.5)
@@ -94,7 +91,7 @@ class ExperimentSettings:
 
         bot_section = self.config[self.tournament_setting]
 
-        self.codemasters = read_list(BotType, bot_section, ConfigKeys.CODEMASTERS)
+        self.spymasters = read_list(BotType, bot_section, ConfigKeys.SPYMASTERS)
         self.guessers = read_list(BotType, bot_section, ConfigKeys.GUESSERS)
         
     #This function gets the settings from config file, sets them, and makes assumptions from settings

@@ -35,7 +35,7 @@ class RoundLogParser:
                 i = 0
 
                 
-                if values[0] == RoundParseKeys.CODEMASTER:
+                if values[0] == RoundParseKeys.SPYMASTER:
                     curr_cm = values[1]
                     if curr_cm not in stat_dict:
                         stat_dict[curr_cm] = {}

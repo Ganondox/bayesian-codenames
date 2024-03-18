@@ -9,7 +9,7 @@ class RunRandGames:
 
         ###LOAD SETTINGS###
 
-        self.CODEMASTERS = self.object_manager.experiment_settings.codemasters
+        self.SPYMASTERS = self.object_manager.experiment_settings.spymasters
 
         self.GUESSERS = self.object_manager.experiment_settings.guessers
 
@@ -89,7 +89,7 @@ class RunRandGames:
                 bot_settings.EMBEDDING_NOISE = n1
             bot_type_1 = self.object_manager.bot_types.NOISY_DISTANCE_ASSOCIATOR
 
-        codemaster_bot, _ = self.object_manager.bot_initializer.init_bots(bot_type_1, None, bot_settings)
+        spymaster_bot, _ = self.object_manager.bot_initializer.init_bots(bot_type_1, None, bot_settings)
         if n2 is not None:
             bot_settings.BOT_TYPE_G = bot_type_2
             if n2 < 0:
@@ -117,14 +117,14 @@ class RunRandGames:
 
             # load words into bots
             utils.cond_print('\tloading bots\' dictionaries', self.object_manager.experiment_settings.verbose_flag)
-            codemaster_bot.load_dict(game_words)
+            spymaster_bot.load_dict(game_words)
             guesser_bot.load_dict(game_words)
             utils.cond_print('\tdone', self.object_manager.experiment_settings.verbose_flag)
 
             # run game
             utils.cond_print('\tbeginning game\n', self.object_manager.experiment_settings.verbose_flag)
 
-            curr_game = Game(bot_type_1, bot_type_2, codemaster_bot, guesser_bot, game_words, seed, self.object_manager.file_manager.ROUND_FILE, self.object_manager.experiment_settings.print_boards)
+            curr_game = Game(bot_type_1, bot_type_2, spymaster_bot, guesser_bot, game_words, seed, self.object_manager.file_manager.ROUND_FILE, self.object_manager.experiment_settings.print_boards)
 
             curr_game.run()
 

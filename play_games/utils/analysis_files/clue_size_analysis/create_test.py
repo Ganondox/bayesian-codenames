@@ -20,7 +20,7 @@ import numpy as np
 from multiprocessing import Pool
 
 from play_games.ai_components.vector_baseline_components.vector_utils import VectorUtils
-from play_games.codemasters.noisy_distance_associator_codemaster import NoisyDistanceAssociatorAICodemaster
+from play_games.spymasters.noisy_distance_associator_spymaster import NoisyDistanceAssociatorAISpymaster
 from play_games.utils.bot_parameter_settings import BotPaths
 from play_games.utils.bot_settings_obj import BotSettingsObj
 from play_games.utils.file_paths_obj import FilePathsObj

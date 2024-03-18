@@ -42,10 +42,10 @@ class RunTournament:
 
 
         n = self.exp_settings.n_games 
-        codemasters = self.exp_settings.codemasters
+        spymasters = self.exp_settings.spymasters
         guessers = self.exp_settings.guessers
 
-        for b1, b2 in itertools.product(codemasters, guessers):
+        for b1, b2 in itertools.product(spymasters, guessers):
             #I need to check that at least one of the bots is ensemble if this is a learning experiment
             if is_learning_experiment:
                 #If neither bot is an ensemble, we don't play them together

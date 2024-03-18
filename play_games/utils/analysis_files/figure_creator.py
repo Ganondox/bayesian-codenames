@@ -77,9 +77,9 @@ class FigureCreator:
 
                         self.populate_needed_fields(self.compiled_data, [cm, g, CompiledDataKeys.STAT_COMPARISON, stat])
 
-                        self.assign_val(performance_stats[StatDictKeys.CODEMASTER][stat][StatDictKeys.BEST_AVG], 1, cm, g, stat, StatDictKeys.BEST_AVG)
-                        self.assign_val(performance_stats[StatDictKeys.CODEMASTER][stat][StatDictKeys.BEST_OVERALL], 1, cm, g, stat, StatDictKeys.BEST_OVERALL)
-                        self.assign_val(performance_stats[StatDictKeys.CODEMASTER][stat][StatDictKeys.RANDOM], 1, cm, g, stat, StatDictKeys.RANDOM)
+                        self.assign_val(performance_stats[StatDictKeys.SPYMASTER][stat][StatDictKeys.BEST_AVG], 1, cm, g, stat, StatDictKeys.BEST_AVG)
+                        self.assign_val(performance_stats[StatDictKeys.SPYMASTER][stat][StatDictKeys.BEST_OVERALL], 1, cm, g, stat, StatDictKeys.BEST_OVERALL)
+                        self.assign_val(performance_stats[StatDictKeys.SPYMASTER][stat][StatDictKeys.RANDOM], 1, cm, g, stat, StatDictKeys.RANDOM)
                         
 
                     if is_ensemble(g) and not is_ensemble(cm):
@@ -127,8 +127,8 @@ class FigureCreator:
 
 
                     if has_ens_cm and not has_ens_g:
-                        #then I want to find the best average codemaster 
-                        vals = performance_stats[StatDictKeys.CODEMASTER][self.conversion[stat]][StatDictKeys.BEST_AVG]
+                        #then I want to find the best average spymaster 
+                        vals = performance_stats[StatDictKeys.SPYMASTER][self.conversion[stat]][StatDictKeys.BEST_AVG]
                         # I need to get the one that has the correct guesser
                         for e in vals:
                             if e[1] == g:
@@ -137,7 +137,7 @@ class FigureCreator:
 
                         #I also need to find the best possible score
                         
-                        vals = performance_stats[StatDictKeys.CODEMASTER][self.conversion[stat]][StatDictKeys.BEST_OVERALL]
+                        vals = performance_stats[StatDictKeys.SPYMASTER][self.conversion[stat]][StatDictKeys.BEST_OVERALL]
                         for e in vals:
                             if e[1] == g:
                                 best_overall_cm_score_for_g = e[-1]

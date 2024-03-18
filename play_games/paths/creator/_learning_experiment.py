@@ -43,7 +43,7 @@ class LearningExperimentPathCreator(ExperimentPathCreator):
         self.experiment_paths.final_stat_distribution_dir_path = join(learn_figs_dir, name_elements.FINAL_STAT_DIST_DIR)
 
     def create_file_paths(self, filename_prefix):
-        contains_ensemble_cm = self._do_codemasters_contain_ensemble()
+        contains_ensemble_cm = self._do_spymasters_contain_ensemble()
         contains_ensemble_g = self._do_guessers_contain_ensemble
 
         #If there are ensemble bots then we need to instantiate those filepaths
@@ -61,7 +61,7 @@ class LearningExperimentPathCreator(ExperimentPathCreator):
             dir = self.experiment_paths.learn_experiment_analyses_dir_path
             this_name = "{}{}{}{}{}".format(
                 name_elements.LEARN_EXPERIMENT_ANALYSIS_PREFIX,
-                name_elements.CODEMASTER_PREFIX,
+                name_elements.SPYMASTER_PREFIX,
                 name,
                 itr_range,
                 name_elements.LEARN_EXPERIMENT_ANALYSIS_FILE_TYPE
@@ -86,9 +86,9 @@ class LearningExperimentPathCreator(ExperimentPathCreator):
             #We take care of naming the individual iteration files
 
             if contains_ensemble_cm:
-                self._create_learn_log_paths(name_elements.CODEMASTER_PREFIX, name, i, self.experiment_paths.learn_log_filepaths_cm)
-                self._create_learn_table_paths(name_elements.CODEMASTER_PREFIX, name, i)
-                self._create_learn_fig_paths(name, name_elements.CODEMASTER_PREFIX, i)
+                self._create_learn_log_paths(name_elements.SPYMASTER_PREFIX, name, i, self.experiment_paths.learn_log_filepaths_cm)
+                self._create_learn_table_paths(name_elements.SPYMASTER_PREFIX, name, i)
+                self._create_learn_fig_paths(name, name_elements.SPYMASTER_PREFIX, i)
 
             if contains_ensemble_g:
                 self._create_learn_log_paths(name_elements.GUESSER_PREFIX, name, i, self.experiment_paths.learn_log_filepaths_g)
@@ -109,7 +109,7 @@ class LearningExperimentPathCreator(ExperimentPathCreator):
 
         #Create learning figures for the final (averaged) data
         if contains_ensemble_cm:
-            self._create_learn_fig_paths(name, name_elements.CODEMASTER_PREFIX, "_final")
+            self._create_learn_fig_paths(name, name_elements.SPYMASTER_PREFIX, "_final")
         if contains_ensemble_g:
             self._create_learn_fig_paths(name, name_elements.GUESSER_PREFIX, "_final")
 
@@ -166,8 +166,8 @@ class LearningExperimentPathCreator(ExperimentPathCreator):
             this_name = name_elements.PERFORMANCE_PROGRESSION_SLIDING_WINDOW_PREFIX + b_type + "_" + stat + "_" + name + str(itr_suffix)
             self.experiment_paths.performance_progression_sliding_window_filepaths[b_type][stat].append(join(dir, this_name))
 
-    def _do_codemasters_contain_ensemble(self):
-        cm_ai_types = set(map(get_ai, self.experiment_settings.codemasters))        
+    def _do_spymasters_contain_ensemble(self):
+        cm_ai_types = set(map(get_ai, self.experiment_settings.spymasters))        
         return AIType.DISTANCE_ENSEMBLE in cm_ai_types
     
     def _do_guessers_contain_ensemble(self):

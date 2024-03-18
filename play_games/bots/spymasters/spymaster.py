@@ -5,7 +5,7 @@ from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.games.enums import GameCondition
 
 
-class Codemaster(abc.ABC):
+class Spymaster(abc.ABC):
     @abc.abstractmethod
     def __init__(self):
         pass

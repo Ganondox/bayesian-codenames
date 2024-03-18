@@ -51,7 +51,7 @@ class DataVisualizer:
 
     def get_ensemble_info(self, processed_data):
             #Create the base table for each stat
-            #determine needed solitair bots (all of the codemasters and guessers that aren't ensembles)
+            #determine needed solitair bots (all of the spymasters and guessers that aren't ensembles)
             has_ensemble_cm = False 
             has_ensemble_g = False
             for cm in processed_data:
@@ -74,11 +74,11 @@ class DataVisualizer:
 
             if has_ensemble_cm:
 
-                #Then I need to add the codemaster key to the dict
-                if StatDictKeys.CODEMASTER not in performance_stats:
-                    performance_stats[StatDictKeys.CODEMASTER] = {}
+                #Then I need to add the spymaster key to the dict
+                if StatDictKeys.SPYMASTER not in performance_stats:
+                    performance_stats[StatDictKeys.SPYMASTER] = {}
                 
-                performance_stats[StatDictKeys.CODEMASTER][stat] = {}
+                performance_stats[StatDictKeys.SPYMASTER][stat] = {}
 
                 #Caclulate average performances
                 #I need all of the average cm performances accross guessers
@@ -133,12 +133,12 @@ class DataVisualizer:
                     self.sort_vals(best_overall_cm_for_g[g], stat)
                     best_overall_cm_for_g_vals.append((best_overall_cm_for_g[g][0][0], g, best_overall_cm_for_g[g][0][1]))
                 
-                performance_stats[StatDictKeys.CODEMASTER][stat][StatDictKeys.BEST_AVG] = best_avg_cm_vals
-                performance_stats[StatDictKeys.CODEMASTER][stat][StatDictKeys.BEST_OVERALL] = best_overall_cm_for_g_vals
+                performance_stats[StatDictKeys.SPYMASTER][stat][StatDictKeys.BEST_AVG] = best_avg_cm_vals
+                performance_stats[StatDictKeys.SPYMASTER][stat][StatDictKeys.BEST_OVERALL] = best_overall_cm_for_g_vals
 
             if has_ensemble_g:
 
-                #Then I need to add the codemaster key to the dict
+                #Then I need to add the spymaster key to the dict
                 if StatDictKeys.GUESSER not in performance_stats:
                     performance_stats[StatDictKeys.GUESSER] = {}
                 performance_stats[StatDictKeys.GUESSER][stat] = {}
@@ -211,7 +211,7 @@ class DataVisualizer:
                 for g in processed_data[rand_cm]:
                     rand_cm_data.append((rand_cm, g, extract_val(processed_data[rand_cm][g][stat])))
 
-                performance_stats[StatDictKeys.CODEMASTER][stat][StatDictKeys.RANDOM] = rand_cm_data
+                performance_stats[StatDictKeys.SPYMASTER][stat][StatDictKeys.RANDOM] = rand_cm_data
 
             rand_g = find_rand_bot(processed_data[list(processed_data.keys())[0]].keys())
             if has_ensemble_g and rand_g != None:

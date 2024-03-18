@@ -28,7 +28,7 @@ class FileNameDirectoryElements:
     LEARN_EXPERIMENT_ANALYSIS_FILE_TYPE = ".docx"
     PARAM_EXPERIMENT_ANALYSIS_PREFIX = "param_experiment_analysis_"
     PARAM_EXPERIMENT_ANALYSIS_FILE_TYPE = ".docx"
-    CODEMASTER_PREFIX = "cm_"
+    SPYMASTER_PREFIX = "cm_"
     GUESSER_PREFIX = "g_"
 
     #Directory elements

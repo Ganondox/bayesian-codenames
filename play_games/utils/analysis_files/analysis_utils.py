@@ -8,7 +8,7 @@ from bots.types import AIType
 
 #These are keys that are found in the round files so we can pick out the values that we want.
 class RoundParseKeys:
-    CODEMASTER = "CODEMASTER"
+    SPYMASTER = "SPYMASTER"
     GUESSER = "GUESSER"
     ROUND = "round"
     GUESS = "guess"
@@ -104,12 +104,12 @@ class Stats: #ALL stats that will be used for graphing and for stat dict creatio
 
 class StatDictKeys: 
     G_LEARN_STATS = "Guesser Learning Stats"
-    CM_LEARN_STATS = "Codemaster Learning Stats"
+    CM_LEARN_STATS = "Spymaster Learning Stats"
     FINAL_KEY = "Final"
     BEST_AVG = "Best Average"
     AVG_PERF = "Average Performance"
     BEST_OVERALL = "Best Overall"
-    CODEMASTER = "Codemaster"
+    SPYMASTER = "Spymaster"
     GUESSER = "Guesser"
     SOLO_BOT_DATA = "Solo Bot Data"
     RANDOM = "Random"

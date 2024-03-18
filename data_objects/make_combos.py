@@ -61,16 +61,16 @@ class FileRunner():
         lm_types = []
 
 
-        original_codemasters = copy(self.object_manager.experiment_settings.codemasters)
+        original_spymasters = copy(self.object_manager.experiment_settings.spymasters)
         original_guessers = copy(self.object_manager.experiment_settings.guessers)
 
-        codemaster = copy(original_codemasters)
+        spymaster = copy(original_spymasters)
         guessers = copy(original_guessers)
 
         vectors = {}
         lm_i = 20
 
-        total = len(codemaster) * (len(codemaster) - 1) / 2
+        total = len(spymaster) * (len(spymaster) - 1) / 2
 
         for g1 in original_guessers:
             type_ = get_descr(g1)
@@ -103,7 +103,7 @@ class FileRunner():
             bot_types.append(f"{new_type.upper()}_DISTANCE_ASSOCIATOR = '{new_type} distance associator'")
             bot_types.append(f"{new_type.upper()}_BASELINE_GUESSER = '{new_type} baseline guesser'")
             
-            codemaster.append(f"{new_type} distance associator")
+            spymaster.append(f"{new_type} distance associator")
             guessers.append(f"{new_type} baseline guesser")
 
             
@@ -151,7 +151,7 @@ class FileRunner():
             file.write("\n")
             file.write("\nHere is what you should put in config.ini")
             file.write("\n")
-            file.write(str(codemaster).replace("'", '"'))
+            file.write(str(spymaster).replace("'", '"'))
             file.write("\n")
             file.write(str(guessers).replace("'", '"'))
             file.write("\n")

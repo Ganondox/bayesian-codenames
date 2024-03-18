@@ -4,9 +4,9 @@ from bots.ai_components.associator_ai_components.distance_associator import Dist
 import numpy as np
 
 from play_games.bots.bot_settings_obj import BotSettingsObj
-from play_games.bots.codemasters.codemaster import Codemaster
+from play_games.bots.spymasters.spymaster import Spymaster
 
-class DistanceAssociatorAICodemaster(DistanceAssociator, Codemaster):
+class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
     def __init__(self):
         self.association_location_dict = None
         self.closest_bad_words = dict()

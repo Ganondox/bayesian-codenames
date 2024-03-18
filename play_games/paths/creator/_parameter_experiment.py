@@ -29,7 +29,7 @@ class ParameterExperimentPathCreator(ExperimentPathCreator):
 
         #For every pair (and average of all pairs) and every stat, we want a different figure
         for stat in MAIN_STATS_KEYS:
-            for cm in self.experiment_settings.codemasters:
+            for cm in self.experiment_settings.spymasters:
                 for g in self.experiment_settings.guessers:
 
                     if cm not in self.experiment_paths.param_comparison_fig_filepaths:

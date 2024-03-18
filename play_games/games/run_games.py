@@ -1,7 +1,7 @@
 '''
 This file will play 30 games between 2 bots that are passed in 
 
-When you add a bot, make sure you add it's lm path to paths and add the bot type to BotTypes.py and put it into the codemaster or guesser list
+When you add a bot, make sure you add it's lm path to paths and add the bot type to BotTypes.py and put it into the spymaster or guesser list
 
 authors: Kyle Rogers and Spencer Brosnahan
 '''
@@ -22,7 +22,7 @@ class RunGames:
 
         ###LOAD SETTINGS###
 
-        self.CODEMASTERS = self.object_manager.experiment_settings.codemasters
+        self.SPYMASTERS = self.object_manager.experiment_settings.spymasters
 
         self.GUESSERS = self.object_manager.experiment_settings.guessers
 
@@ -66,7 +66,7 @@ class RunGames:
         bot_settings = self.get_bot_settings(p)
 
         # init bots
-        codemaster_bot, guesser_bot = self.object_manager.bot_initializer.init_bots(bot_type_1, bot_type_2, bot_settings)
+        spymaster_bot, guesser_bot = self.object_manager.bot_initializer.init_bots(bot_type_1, bot_type_2, bot_settings)
 
         # load codenames words
         codenames_words = self.load_words()
@@ -83,14 +83,14 @@ class RunGames:
 
             # load words into bots
             utils.cond_print('\tloading bots\' dictionaries', self.object_manager.experiment_settings.verbose_flag)
-            codemaster_bot.load_dict(game_words)
+            spymaster_bot.load_dict(game_words)
             guesser_bot.load_dict(game_words)
             utils.cond_print('\tdone', self.object_manager.experiment_settings.verbose_flag)
 
             # run game
             utils.cond_print('\tbeginning game\n', self.object_manager.experiment_settings.verbose_flag)
 
-            curr_game = Game(bot_type_1, bot_type_2, codemaster_bot, guesser_bot, game_words, seed, self.object_manager.file_manager.ROUND_LOG_FILE, self.object_manager.experiment_settings.print_boards)
+            curr_game = Game(bot_type_1, bot_type_2, spymaster_bot, guesser_bot, game_words, seed, self.object_manager.file_manager.ROUND_LOG_FILE, self.object_manager.experiment_settings.print_boards)
             curr_game.run()
 
 

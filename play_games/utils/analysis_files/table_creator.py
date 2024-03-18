@@ -43,21 +43,21 @@ class TableCreator:
         #loop throught the cms and then loop through the gs
         table = []
 
-        codemasters = list(processed_data.keys())
-        guessers = list(processed_data[codemasters[0]].keys())
+        spymasters = list(processed_data.keys())
+        guessers = list(processed_data[spymasters[0]].keys())
 
         #sort them to ensure that the bots line up correctly 
-        codemasters = sorted(codemasters, reverse=True)
+        spymasters = sorted(spymasters, reverse=True)
         guessers = sorted(guessers, reverse=True)
 
         headers = copy.deepcopy(guessers)
         headers.insert(0, "cm/g")
 
-        for i in range(len(codemasters)):
-            table.append([codemasters[i]])
+        for i in range(len(spymasters)):
+            table.append([spymasters[i]])
             for j in range(len(guessers)):
-                if self.experiment_settings.include_same_lm or (get_lm(codemasters[i]) != get_lm(guessers[j])):
-                    table[i].append(self.round_val(extract_val(processed_data[codemasters[i]][guessers[j]][stat])))
+                if self.experiment_settings.include_same_lm or (get_lm(spymasters[i]) != get_lm(guessers[j])):
+                    table[i].append(self.round_val(extract_val(processed_data[spymasters[i]][guessers[j]][stat])))
                 else:
                     table[i].append('-')
 
@@ -103,7 +103,7 @@ class TableCreator:
     def add_performance_vals(self, key, num_ext, table, performance_stats, stat, has_ensemble_cm, has_ensemble_g):
         if has_ensemble_cm:
             #We add overall to a row
-            values = [v for v in performance_stats[StatDictKeys.CODEMASTER][stat][key] if (not is_rand_ensemble(v[1])) and (not is_ensemble(v[1]))]
+            values = [v for v in performance_stats[StatDictKeys.SPYMASTER][stat][key] if (not is_rand_ensemble(v[1])) and (not is_ensemble(v[1]))]
             values = [self.round_val(e[-1]) for e in values]
             values.append(self.round_val(np.mean(values)))
             table.append([key] + values)

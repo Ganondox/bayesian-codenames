@@ -6,7 +6,7 @@ class ConfigKeys(StrEnum):
     N_ASSOCIATIONS = "n_associations"
     BOARD_SIZE = "board_size"
     TOURNAMENT_SETTING = "tournament_setting"
-    CODEMASTERS = "codemasters"
+    SPYMASTERS = "spymasters"
     GUESSERS = "guessers"
     EXPERIMENT_TYPE = "experiment_type"
     CUSTOM_ROOT_NAME = "custom_root_name"

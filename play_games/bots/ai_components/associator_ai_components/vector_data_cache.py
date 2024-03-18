@@ -4,13 +4,12 @@ This file will contain associations from the json file. You will pass in a filep
 
 
 from play_games.bots.ai_components import vector_utils as vutils
-from play_games.utils.utils import quick_dist
-from scipy.spatial.distance import cosine
+from scipy.spatial.distance import euclidean
 
 __vectors_cache = dict()
 __distance_cache = dict()
 
-__dist_fn = quick_dist #quick_dist, cosine
+__dist_fn = euclidean #quick_dist, cosine
 
 def distance_vec(vec1, vec2):
     return __dist_fn(vec1, vec2)
@@ -49,7 +48,7 @@ class VectorDataCache:
         return vutils.concatenate(w, self.vectors)
 
     def __getitem__(self, key):
-        self.vector(key)
+        return self.vector(key)
 
     def __contains__(self, key):
         return key in self.vectors[0]

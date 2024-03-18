@@ -22,7 +22,7 @@ class RunRandTournament:
 
     def run(self, lp=0, p=0, parrallel=False, seed=0):
         #Get needed information from the experiment_settings.py file
-        codemasters = self.object_manager.experiment_settings.codemasters
+        spymasters = self.object_manager.experiment_settings.spymasters
         guessers = self.object_manager.experiment_settings.guessers
         n = self.object_manager.experiment_settings.n_games 
         is_learning_experiment = False
@@ -54,7 +54,7 @@ class RunRandTournament:
 
         i = 0
         
-        for b1 in codemasters:
+        for b1 in spymasters:
             i += 1
             for noise_cm in [None, 0, 1, -0.02]:
                 for b2 in guessers:

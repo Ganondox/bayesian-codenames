@@ -3,11 +3,8 @@ from enum import StrEnum
 
 class AIType(StrEnum):
     DISTANCE_ASSOCIATOR = "distance_associator"
-    NOISY_DISTANCE_ASSOCIATOR = "noisy_distance_associator"
-    NOISY_BASELINE = "noisy_baseline"
     BASELINE = "baseline"
-    DISTANCE_ENSEMBLE = "distance ensemble"
-    RANDOM_DISTANCE_ENSEMBLE = "random distance ensemble"
+    BAYESIAN = "bayesian"
 
 class BotType(StrEnum):
     W2V_GLOVE_BASELINE_GUESSER = 'w2v_glove baseline guesser'
@@ -36,14 +33,7 @@ class BotType(StrEnum):
     BERT2_DISTANCE_ASSOCIATOR = "bert2 distance associator"
     FAST_TEXT_DISTANCE_ASSOCIATOR = "fast-text distance associator"
 
-    NOISY_DISTANCE_ASSOCIATOR = "noisy distance associator"
-    NOISY_BASELINE_GUESSER = "noisy baseline guesser"
-
-    DISTANCE_ENSEMBLE_CODEMASTER = "distance ensemble codemaster"
-    DISTANCE_ENSEMBLE_GUESSER = "distance ensemble guesser"
-    
-    RANDOM_DISTANCE_ENSEMBLE_GUESSER = "random distance ensemble guesser"
-    RANDOM_DISTANCE_ENSEMBLE_CODEMASTER= "random distance ensemble codemaster"
+    BAYESIAN_SPYMASTER = "bayesian spymaster"
 
     @property
     def ai_type(self)->AIType:
