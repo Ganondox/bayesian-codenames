@@ -135,7 +135,8 @@ class BayesianSpymaster:
             guess = self.previous_guesses
 
             #convert list to number so it can be used as key value
-            num = self.toNum(guess, len(boardwords))
+            num = self.toNum(guess, len(boardwords)) # + len(guess)
+            # BUG: This relies on the current boardwords whereas last round the boardwords where different?
             for guesser in self.guessers:
                 if num in self.likelihood[guesser]:
                     self.posterior[guesser] *= self.likelihood[guesser][num]
@@ -196,7 +197,7 @@ class BayesianSpymaster:
                         ev += value * self.posterior[guesser]
 
                         #get observation from guess
-                        num = self.toNum(guess_words, len(card_teams))
+                        num = self.toNum(guess_words, len(boardwords))
                         if num in self.likelihood[guesser]:
                             self.likelihood[guesser][num] += 1
                         else:
@@ -208,7 +209,7 @@ class BayesianSpymaster:
                     best_clue_word = clue
                     best_clue_num = cur_clue_num
                     best_clue_val = ev
-                    best_clue_distance = cur_clue_distance
+                    best_clue_distance = cur_clue_distance # BUG: This takes the last average distance?
 
                 # Same expected value, but closer distances
                 if ev == best_clue_val and cur_clue_distance < best_clue_distance: 
@@ -217,7 +218,7 @@ class BayesianSpymaster:
                     best_clue_val = ev
                     best_clue_distance = cur_clue_distance
         print()
-        return (best_clue_word, ['']*best_clue_num)
+        return (best_clue_word, ['target']*best_clue_num)
     
     def give_feedback(self, guess: str, *_):
         self.current_guesses.append(guess)

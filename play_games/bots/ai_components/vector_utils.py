@@ -29,5 +29,21 @@ def get_perturbed_euclid_distances(clue_emb, embeddings, std, k):
     def get_normal(x):
         return np.linalg.norm(noisy_embeddings-x, axis=1)
     distances = np.apply_along_axis(get_normal, 1, embeddings)
-    
-    return embeddings, distances
+
+    return noisy_embeddings, distances.T
+
+if __name__ == "__main__":
+    vectors = [v[:10] for v in load_vectors("./raw_data/w2v_lm.txt").values()]
+    clue_emb = vectors[0]
+
+    noisy_emb, opt = get_perturbed_euclid_distances(clue_emb, vectors, 0.1, 200)
+
+    save = []
+    from scipy.spatial.distance import euclidean
+    for emb in noisy_emb:
+        save.append([np.linalg.norm(v-emb) for v in vectors])
+
+    non = np.array(save)
+
+    print(np.all(np.abs(non-opt) < 0.00000000001))
+
