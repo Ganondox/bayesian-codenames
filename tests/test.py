@@ -1,3 +1,4 @@
+from datetime import timedelta
 from enum import IntEnum, StrEnum
 import os
 
@@ -43,7 +44,7 @@ words = utils.load_word_list(file_paths.board_words_path)
 GAMES_TO_PLAY = 50
 SEED = 2050
 CODEMASTER = BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
-GUESSER = BotType.ELMO_BASELINE_GUESSER #BotType.W2V_GLOVE_BASELINE_GUESSER
+GUESSER = BotType.W2V_BASELINE_GUESSER
 os.environ['MKL_VERBOSE']="1"
 
 def get_bot_settings(b_type):
@@ -150,7 +151,6 @@ if __name__ == '__main__':
 
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
-    bot_settings.BOT_TYPE_SM = CODEMASTER
     bayes, test_g = obj.bot_initializer.init_bots(BotType.BAYESIAN_SPYMASTER, GUESSER, bot_settings)
 
     bot_settings = get_bot_settings(CODEMASTER)
@@ -222,6 +222,6 @@ if __name__ == '__main__':
         print(state)
         games_played+=1
         t_game_end = time.time()
-        print(f"Time Elapsed: {t_game_end-t_game_start}")
+        print(f"Time Elapsed: {timedelta(seconds=t_game_end-t_game_start)}")
 
         print(win, games_played, round(win/games_played, 2))

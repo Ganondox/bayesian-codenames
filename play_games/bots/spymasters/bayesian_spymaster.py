@@ -88,6 +88,9 @@ class BayesianSpymaster:
     def simulate_guesser(self, words, distances, card_teams, clue_num):
         guess_indcs = sorted(range(len(distances)), key=distances.__getitem__)[:clue_num]
 
+        if clue_num > 3:
+            pass
+
         for guess_i, bw_i in enumerate(guess_indcs):
             if card_teams[words[bw_i]] != self.team:
                 break
@@ -182,18 +185,21 @@ class BayesianSpymaster:
                         break
                 if not good:
                     break
+
+                sum_distance = 0
                 for guesser in self.guessers:
                     
                     pcv = guesser.vectors[clue]
                     bw_embeddings = [guesser.vectors[w] for w in boardwords]
                     _, noisy_distances = vector_utils.get_perturbed_euclid_distances(pcv, bw_embeddings, self.noise, self.samples)
+
                     for noisy_dists in noisy_distances:
                         guess_words, guess_dists = self.simulate_guesser(boardwords, noisy_dists, card_teams, cur_clue_num)
-                        
                         # See how good this guess is
                         # Value = estimated marginal contribution to score at end of game
                         # Cur distance = average distance to the correctly guessed cards
                         value, cur_clue_distance = self.evaluateGuess2(guess_words, guess_dists, card_teams)
+                        sum_distance += cur_clue_distance
                         ev += value * self.posterior[guesser]
 
                         #get observation from guess
