@@ -6,7 +6,7 @@ from play_games.paths import bot_paths
 
 LANGUAGE_MODELS = [LMType.W2V, LMType.GLOVE_100, LMType.CN_NB, LMType.D2V]
 
-N_ASSOC = 100
+N_ASSOC = 500
 
 class InternalGuesser:
 

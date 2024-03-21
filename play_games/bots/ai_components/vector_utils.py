@@ -22,10 +22,10 @@ def concatenate(word, wordvecs):
 def perturb_embedding(v, std):
     if not std or std == 0:
         return v
-    return np.random.normal(v, std)
+    return np.random.normal(v, std/np.sqrt(len(v)))
 
 def get_perturbed_euclid_distances(clue_emb, embeddings, std, k):
-    noisy_embeddings = np.random.normal(clue_emb, std, (k, len(clue_emb)))
+    noisy_embeddings = np.random.normal(clue_emb, std/np.sqrt(len(clue_emb)), (k, len(clue_emb)))
     def get_normal(x):
         return np.linalg.norm(noisy_embeddings-x, axis=1)
     distances = np.apply_along_axis(get_normal, 1, embeddings)
@@ -35,9 +35,7 @@ def get_perturbed_euclid_distances(clue_emb, embeddings, std, k):
 if __name__ == "__main__":
     vectors = [v[:10] for v in load_vectors("./raw_data/w2v_lm.txt").values()]
     clue_emb = vectors[0]
-
     noisy_emb, opt = get_perturbed_euclid_distances(clue_emb, vectors, 0.1, 200)
-
     save = []
     from scipy.spatial.distance import euclidean
     for emb in noisy_emb:
