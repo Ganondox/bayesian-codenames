@@ -49,8 +49,7 @@ class RunGames:
             match self.object_manager.experiment_settings.independent_variable:
                 case IndependentVariables.N_ASSOCIATIONS:
                     bot_settings.N_ASSOCIATIONS = self.object_manager.experiment_settings.variable_space[p]
-                case IndependentVariables.ENSEMBLE_PARAMETERS:
-                    bot_settings.ENSEMBLE_PARAMS = self.object_manager.experiment_settings.variable_space[p]
+                
 
         bot_settings.LOG_FILE = self.object_manager.file_manager.ROUND_LOG_FILE
         if len(self.experiment_paths.learn_log_filepaths_cm) > 0:

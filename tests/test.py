@@ -6,11 +6,12 @@ import numpy as np
 from pathlib import Path
 import sys
 
+
 __root = Path(__file__).parent
 
 sys.path.insert(0, str(__root.parents[0])) 
 
-from play_games.bots.spymasters.bayesian_spymaster import BayesianSpymaster
+from play_games.bots.types.bot_to_lm import get_lm
 
 import sys
 import time
@@ -151,7 +152,9 @@ if __name__ == '__main__':
 
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
-    bayes, test_g = obj.bot_initializer.init_bots(BotType.BAYESIAN_SPYMASTER, GUESSER, bot_settings)
+    bot_settings.BOT_TYPE_G = get_lm(GUESSER)
+    bot_settings.EMBEDDING_NOISE = 0.1
+    bayes, test_g = obj.bot_initializer.init_bots(BotType.BAYESIAN_SPYMASTER, BotType.NOISY_GUESSER, bot_settings)
 
     bot_settings = get_bot_settings(CODEMASTER)
 

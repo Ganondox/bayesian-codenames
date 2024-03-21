@@ -5,6 +5,7 @@ class AIType(StrEnum):
     DISTANCE_ASSOCIATOR = "distance_associator"
     BASELINE = "baseline"
     BAYESIAN = "bayesian"
+    NOISY = "noisy"
 
 class BotType(StrEnum):
     W2V_GLOVE_BASELINE_GUESSER = 'w2v_glove baseline guesser'
@@ -34,6 +35,7 @@ class BotType(StrEnum):
     FAST_TEXT_DISTANCE_ASSOCIATOR = "fast-text distance associator"
 
     BAYESIAN_SPYMASTER = "bayesian spymaster"
+    NOISY_GUESSER = "noisy guesser"
 
     @property
     def ai_type(self)->AIType:
@@ -60,7 +62,5 @@ class LMType(StrEnum):
     BERT2 = 'bert2'
     FAST_TEXT = 'fast-text'
     NONE = '[NONE]'
-    ENSEMBLE = 'ensemble'
-    RANDOM_ENSEMBLE = 'random ensemble'
     NOISY = 'noisy'
 

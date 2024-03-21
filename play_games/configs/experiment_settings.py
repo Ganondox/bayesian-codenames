@@ -37,8 +37,7 @@ class ExperimentSettings:
 
     #parameter experiment settings
     n_associations: int
-    noise_parameters: list[float, float] | None
-    detect: list[float, float] | None
+    noise_parameters: float | None
 
     #don't touch this
     independent_variable: IndependentVariables | None
@@ -47,7 +46,6 @@ class ExperimentSettings:
     #Learning experiment settings
     iteration_range: list[int, int] | None
     include_same_lm: bool
-    ensemble_parameters: float | None
 
     n_games: int
     board_size: int
@@ -76,15 +74,13 @@ class ExperimentSettings:
         self.print_learning = read_boolean(config_section, ConfigKeys.PRINT_LEARNING, fallback=False)
 
         self.n_associations = read_int(config_section, ConfigKeys.N_ASSOCIATIONS, fallback=300)
-        self.noise_parameters = read_list(float, config_section, ConfigKeys.NOISE_PARAMETERS, fallback=None)
-        self.detect = read_list(float, config_section, ConfigKeys.DETECT, fallback=None)
+        self.noise_parameters = read_float(config_section, ConfigKeys.NOISE_PARAMETERS, fallback=0.1)
 
         self.independent_variable = read_enum(IndependentVariables, config_section, ConfigKeys.INDEPENDENT_VARIABLE, fallback=None)
         self.variable_space = read_json(config_section, ConfigKeys.VARIABLE_SPACE, fallback=None)
 
         self.iteration_range = read_list(int, config_section, ConfigKeys.ITERATION_RANGE, accept_null=True, fallback=None)
         self.include_same_lm = read_boolean(config_section, ConfigKeys.INCLUDE_SAME_LM, fallback=True)
-        self.ensemble_parameters = read_float(config_section, ConfigKeys.ENSEMBLE_PARAMETERS, fallback=0.5)
         
         self.n_games = read_int(config_section, ConfigKeys.N_GAMES)
         self.board_size = read_int(config_section, ConfigKeys.BOARD_SIZE, fallback=25)

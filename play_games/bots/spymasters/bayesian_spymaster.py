@@ -138,12 +138,17 @@ class BayesianSpymaster:
             guess = self.previous_guesses
 
             #convert list to number so it can be used as key value
-            num = self.toNum(guess, len(boardwords)) # + len(guess)
+            #
+            num = self.toNum(guess, len(self.boardwords)) # + len(guess)
             # BUG: This relies on the current boardwords whereas last round the boardwords where different?
             for guesser in self.guessers:
                 if num in self.likelihood[guesser]:
                     self.posterior[guesser] *= self.likelihood[guesser][num]
                 # Uniform dirilect prior for estimating likeihood
+                    
+            total = sum(self.posterior.values())
+            self.posterior = {k:v/total for k,v in self.posterior.items()}
+        print(self.posterior)
 
 
         #reset likeihoods
@@ -186,7 +191,6 @@ class BayesianSpymaster:
                 if not good:
                     break
 
-                sum_distance = 0
                 for guesser in self.guessers:
                     
                     pcv = guesser.vectors[clue]
@@ -199,11 +203,12 @@ class BayesianSpymaster:
                         # Value = estimated marginal contribution to score at end of game
                         # Cur distance = average distance to the correctly guessed cards
                         value, cur_clue_distance = self.evaluateGuess2(guess_words, guess_dists, card_teams)
-                        sum_distance += cur_clue_distance
+                        cur_clue_distance = sum(guesser.vectors.distance_word(clue, w) for w in boardwords)
+                        # doesn't depend on noise
                         ev += value * self.posterior[guesser]
 
                         #get observation from guess
-                        num = self.toNum(guess_words, len(boardwords))
+                        num = self.toNum(guess_words, len(self.boardwords))
                         if num in self.likelihood[guesser]:
                             self.likelihood[guesser][num] += 1
                         else:

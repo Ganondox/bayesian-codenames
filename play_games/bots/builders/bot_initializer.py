@@ -44,6 +44,9 @@ class BotInitializer():
             match bot_ai_type:
                 case AIType.BASELINE:
                     guesser_bot = BotConstructorType.VECTOR_BASELINE_GUESSER.build()
+                case AIType.NOISY:
+                    bot_settings.CONSTRUCTOR_PATHS = bot_paths.get_vector_path_for_lm(bot_settings.BOT_TYPE_G)
+                    guesser_bot = BotConstructorType.NOISY_GUESSER.build()
                 case _:
                     print("Error loading guesser")
                     return 
@@ -53,16 +56,10 @@ class BotInitializer():
 
 
     def initialize_bayesian_spymaster(self, bot_settings_obj):
-        guessers = [ 
-                InternalGuesser(
-                    bot_paths.get_vector_path_for_lm(lm),
-                    bot_paths.get_association_path_for_lm(lm)
-                ) 
-            for lm in LANGUAGE_MODELS
-        ]
+        guessers = [ InternalGuesser(lm) for lm in LANGUAGE_MODELS ]
         team = Color.TEAM
         prior = {g:1/len(guessers) for g in guessers}
-        noise = 0.05 # try other values
+        noise = 0.1 # try other values
         samples = 5 # try other values
         name = "Bayesian"
         return BayesianSpymaster(team, guessers, prior, noise, samples, name)        
