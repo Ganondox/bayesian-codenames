@@ -29,6 +29,4 @@ class NoisyGuesser(Guesser):
     def _get_n_closest_words(self, n, clue, words):
         noisy_clue = vector_utils.perturb_embedding(self.vectors[clue], self.std)
         dists = [distance_vec(noisy_clue, self.vectors[w]) for w in words]
-        bill = sorted(words, key=lambda w:self.vectors.distance_word(w, clue))[:n]
-        ret = [words[i] for i in sorted(range(len(words)), key=dists.__getitem__)[:n]]
-        return ret
+        return [words[i] for i in sorted(range(len(words)), key=dists.__getitem__)[:n]]
