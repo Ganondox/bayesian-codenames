@@ -153,16 +153,14 @@ if __name__ == '__main__':
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(GUESSER)
-    bot_settings.EMBEDDING_NOISE = 0.1
+    bot_settings.EMBEDDING_NOISE = 1.7
     bayes, test_g = obj.bot_initializer.init_bots(BotType.BAYESIAN_SPYMASTER, BotType.NOISY_GUESSER, bot_settings)
 
     bot_settings = get_bot_settings(CODEMASTER)
 
-    bot_settings.EMBEDDING_NOISE = 0.0
-    bot_settings.DIST_NOISE = 0.2
+    bot_settings.EMBEDDING_NOISE = 1.6
     # bot_settings.SAMPLE_SIZE = 10
     #bot_settings = get_bot_settings(CODEMASTER)
-    normal_cm, _ = obj.bot_initializer.init_bots(CODEMASTER, None, bot_settings)
 
     # FOR TESTING
     # Log type of bots being used to anc file
@@ -171,13 +169,12 @@ if __name__ == '__main__':
     win = 0
     while(games_played < GAMES_TO_PLAY):
         t_game_start = time.time()
-        random.seed(SEED + games_played*100)
+        random.seed(SEED + games_played)
         print(f"_______________________ Game {games_played+1} ____________________________")
         team_words, opponent_words, byst_words, assasin, board = get_random_board()
         print_board(team_words, opponent_words, byst_words, assasin, board)
 
         bayes.load_dict(board)
-        normal_cm.load_dict(board)
         test_g.load_dict(board)
         
         prev_guesses=[]

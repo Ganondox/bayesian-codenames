@@ -59,7 +59,7 @@ class BotInitializer():
         guessers = [ InternalGuesser(lm) for lm in LANGUAGE_MODELS ]
         team = Color.TEAM
         prior = {g:1/len(guessers) for g in guessers}
-        noise = 1.7 # try other values
+        noise = 1.7 #1.7 # try other values
         samples = 10 # try other values
         name = "Bayesian"
         return BayesianSpymaster(team, guessers, prior, noise, samples, name)        

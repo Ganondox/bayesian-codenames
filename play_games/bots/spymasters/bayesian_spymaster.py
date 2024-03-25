@@ -3,6 +3,7 @@ import numpy as np
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
 from play_games.bots.ai_components import vector_utils
 from play_games.bots.ai_components.bayesian_components import InternalGuesser
+from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.games.enums import Color, GameCondition
 
 
@@ -29,8 +30,9 @@ class BayesianSpymaster:
        self.current_guesses = []
        self.posterior = self.prior.copy()
 
-    def initialize(self, _):
-        pass
+    def initialize(self, bot_settings: BotSettingsObj):
+        self.log_file = bot_settings.LEARN_LOG_FILE_CM
+        self.log = self.log_file.write if self.log_file else (lambda *a, **kw: None)
     
     def load_dict(self, boardwords: list[str]):
         self.boardwords = boardwords
@@ -44,6 +46,9 @@ class BayesianSpymaster:
             num += hash(g) * radix ** exponent
             exponent += 1
         return num
+    
+    def hashClue(self, clue_word, clue_num):
+        return hash(clue_word) + clue_num
     
     def evaluateGuess(self, guesses, distances_from_clue, card_teams):
         #Evaluate this guess (list of guesses) from the standpoint of team
@@ -140,7 +145,6 @@ class BayesianSpymaster:
             #convert list to number so it can be used as key value
             #
             num = self.toNum(guess, len(self.boardwords)) # + len(guess)
-            # BUG: This relies on the current boardwords whereas last round the boardwords where different?
             for guesser in self.guessers:
                 if num in self.likelihood[guesser]:
                     self.posterior[guesser] *= self.likelihood[guesser][num]
@@ -153,8 +157,8 @@ class BayesianSpymaster:
 
         #reset likeihoods
         for guesser in self.guessers:
-            for clue in self.likelihood[guesser]:
-                self.likelihood[guesser][clue] = 1; #Uniform dirilect prior for estimating likeihood
+            for clue_word in self.likelihood[guesser]:
+                self.likelihood[guesser][clue_word] = 1; #Uniform dirilect prior for estimating likeihood
 
 
         # Track the best clue I find
@@ -168,10 +172,12 @@ class BayesianSpymaster:
 
         # How many of my cards are left to guess?  That is the highest
         # clue num that I should try
-        my_cards_left = len(player_words)
 
+        temporary_likelihood = {g:{} for g in self.guessers}    
+        
+        my_cards_left = len(player_words)
         possible_clue_words = self.get_possible_clues(player_words)
-        for i, clue in enumerate(possible_clue_words, 1):
+        for i, clue_word in enumerate(possible_clue_words, 1):
             print(
                 "                                 \r"
                 f" {i} / {len(possible_clue_words)}", 
@@ -183,7 +189,7 @@ class BayesianSpymaster:
                 #semiconverstive optimization - only try clues that are "good" for at least one guesser, otherwise break num
                 good = False
                 for guesser in self.guessers:
-                    distances_from_clue = [guesser.vectors.distance_word(clue, w) for w in boardwords]
+                    distances_from_clue = [guesser.vectors.distance_word(clue_word, w) for w in boardwords]
                     guess_words, guess_distances = self.simulate_guesser(boardwords, distances_from_clue, card_teams, cur_clue_num)
                     good, cur_clue_distance = self.evaluateGuess(guess_words, guess_distances, card_teams)
                     if good:
@@ -192,8 +198,12 @@ class BayesianSpymaster:
                     break
 
                 for guesser in self.guessers:
+
+                    clueHash = (clue_word, cur_clue_num)
+                    if clueHash not in temporary_likelihood:
+                        temporary_likelihood[guesser][clueHash] = {}
                     
-                    pcv = guesser.vectors[clue]
+                    pcv = guesser.vectors[clue_word]
                     bw_embeddings = [guesser.vectors[w] for w in boardwords]
                     _, noisy_distances = vector_utils.get_perturbed_euclid_distances(pcv, bw_embeddings, self.noise, self.samples)
 
@@ -203,31 +213,33 @@ class BayesianSpymaster:
                         # Value = estimated marginal contribution to score at end of game
                         # Cur distance = average distance to the correctly guessed cards
                         value, cur_clue_distance = self.evaluateGuess2(guess_words, guess_dists, card_teams)
-                        cur_clue_distance = sum(guesser.vectors.distance_word(clue, w) for w in boardwords)
+                        cur_clue_distance = sum(guesser.vectors.distance_word(clue_word, w) for w in boardwords)
                         # doesn't depend on noise
                         ev += value * self.posterior[guesser]
 
                         #get observation from guess
                         num = self.toNum(guess_words, len(self.boardwords))
-                        if num in self.likelihood[guesser]:
-                            self.likelihood[guesser][num] += 1
+                        if num in temporary_likelihood[guesser][clueHash]:
+                            temporary_likelihood[guesser][clueHash][num] += 1
                         else:
-                            self.likelihood[guesser][num] = 2 #estimated assuming uniform dirilect prior
+                            temporary_likelihood[guesser][clueHash][num] = 2 #estimated assuming uniform dirilect prior
 
 
                 # This is better than the best clue by clue val
                 if best_clue_word is None or ev > best_clue_val:
-                    best_clue_word = clue
+                    best_clue_word = clue_word
                     best_clue_num = cur_clue_num
                     best_clue_val = ev
                     best_clue_distance = cur_clue_distance # BUG: This takes the last average distance?
 
                 # Same expected value, but closer distances
                 if ev == best_clue_val and cur_clue_distance < best_clue_distance: 
-                    best_clue_word = clue
+                    best_clue_word = clue_word
                     best_clue_num = cur_clue_num
                     best_clue_val = ev
                     best_clue_distance = cur_clue_distance
+
+                self.likelihood = {g:temporary_likelihood[g][(best_clue_word, best_clue_num)] for g in self.guessers}
         print()
         return (best_clue_word, ['target']*best_clue_num)
     
