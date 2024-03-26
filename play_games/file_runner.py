@@ -1,8 +1,8 @@
 
 from paths.creator import FilePathCreator
+from play_games.games.run_bayesian_tournament import RunBayesianTournament
 from utils.object_manager import ObjectManager
 from games.run_tournament import RunTournament
-from games.run_random_tournament import RunRandTournament
 
 from games.run_learning_experiment import RunLearningExperiment
 from games.run_parameter_experiment import RunParameterExperiment
@@ -17,6 +17,10 @@ class FileRunner():
 
     def run_tournament(self, seed=0):
         run_tournament = RunTournament(self.object_manager)
+        run_tournament.run(seed=seed)
+
+    def run_bayesian_tournament(self, seed=0):
+        run_tournament = RunBayesianTournament(self.object_manager)
         run_tournament.run(seed=seed)
 
     def run_learning_experiment(self):

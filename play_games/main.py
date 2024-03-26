@@ -13,7 +13,7 @@ from play_games.configs.enums import ExperimentType
 
 seed = 2000
 run_experiment = True
-config_setting = "PARAM_TESTS"
+config_setting = "BAYES"
 iteration_range = None # None defaults to one found in config.ini
 
 
@@ -63,9 +63,8 @@ def _setup_settings():
 def _run_with_settings():
     start = time.time()
     match experiment_settings.experiment_type:
-        case ExperimentType.PARAMETER_EXPERIMENT: file_runner.run_parameter_experiment()
         case ExperimentType.LEARNING_EXPERIMENT:  file_runner.run_learning_experiment()
-        case ExperimentType.RANDOM_TOURNAMENT:    file_runner.run_rand_tournament(seed=seed)
+        case ExperimentType.BAYESIAN_TOURNAMENT:  file_runner.run_bayesian_tournament(seed=seed)
         case ExperimentType.TOURNAMENT:           file_runner.run_tournament(seed=seed)
     print(f"Duration {datetime.timedelta(seconds=time.time()-start)}")
 

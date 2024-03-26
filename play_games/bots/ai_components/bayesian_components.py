@@ -4,13 +4,11 @@ from play_games.bots.types import LMType
 from play_games.paths import bot_paths
 
 
-LANGUAGE_MODELS = [LMType.W2V, LMType.GLOVE_100, LMType.CN_NB, LMType.D2V]
-
-N_ASSOC = 500
+LANGUAGE_MODELS = [LMType.W2V, LMType.GLOVE_300, LMType.CN_NB, LMType.D2V, LMType.FAST_TEXT]
 
 class InternalGuesser:
 
-    def __init__(self, lm):
+    def __init__(self, lm, n_assoc):
         self.lm = lm
         vector_filepath = bot_paths.get_vector_path_for_lm(lm),
         associations_filepath = bot_paths.get_association_path_for_lm(lm)
@@ -20,7 +18,7 @@ class InternalGuesser:
             self.vectors = VectorDataCache(vector_filepath)
 
         self.associations = AssociatorDataCache(associations_filepath,)
-        self.associations.load_cache(N_ASSOC)
+        self.associations.load_cache(n_assoc)
         self.__hash = hash(vector_filepath) + 33* hash(associations_filepath)
 
 

@@ -2,7 +2,6 @@ from play_games.configs.experiment_settings import ExperimentSettings
 
 from play_games.paths.file_paths import ExperimentPaths
 from play_games.utils.analysis_files.data_processer import DataProcessor
-from play_games.utils.analysis_files.data_visualizer import DataVisualizer
 from play_games.utils.analysis_files.parsers.data_parser import DataParser
 from play_games.configs.enums import ExperimentType
 
@@ -19,15 +18,12 @@ class ResultsAnalyzer:
         self.experiment_paths = experiment_paths
         self.data_parser = DataParser(experiment_paths)
         self.data_processer = DataProcessor(experiment_settings, experiment_paths)
-        self.data_visualizer = DataVisualizer(experiment_settings, experiment_paths)
 
 
         self.use_preloaded_parsed = False
         self.use_preloaded_processed = False
         self.use_preloaded_visualized = False
         
-        self.data_visualizer.figure_creator.fig = not self.use_preloaded_visualized
-
 
     def run_analysis(self):
         
@@ -48,8 +44,6 @@ class ResultsAnalyzer:
             else:
                 processed_data = self.data_processer.load_processed_data()
 
-            self.data_visualizer.visualize_data(processed_data)
-
         elif self.experiment_settings.experiment_type == ExperimentType.PARAMETER_EXPERIMENT:
 
             round_logs = self.experiment_paths.round_log_filepaths
@@ -68,8 +62,7 @@ class ResultsAnalyzer:
                 processed_data = self.data_processer.load_processed_data()
 
 
-            if not self.use_preloaded_visualized:
-                self.data_visualizer.visualize_data(processed_data)
+        
 
         else: #this is a tournament
             round_logs = self.experiment_paths.round_log_filepaths
@@ -84,9 +77,6 @@ class ResultsAnalyzer:
                 processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
             else:
                 processed_data = self.data_processer.load_processed_data()
-
-            if not self.use_preloaded_visualized:
-                self.data_visualizer.visualize_data(processed_data)
                 
     def run_analysis_file(self, round_logs, parsed_data_filepaths, processed_data_filepaths):
         if not self.use_preloaded_parsed:
@@ -97,9 +87,6 @@ class ResultsAnalyzer:
             processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
         else:
             processed_data = self.data_processer.load_processed_data()
-
-        if not self.use_preloaded_visualized:
-            self.data_visualizer.visualize_data(processed_data)
 
     
 

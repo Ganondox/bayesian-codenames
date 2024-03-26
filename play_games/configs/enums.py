@@ -28,7 +28,7 @@ class ConfigKeys(StrEnum):
 class ExperimentType(StrEnum):
     LEARNING_EXPERIMENT = "learning experiment"
     PARAMETER_EXPERIMENT = "parameter experiment"
-    RANDOM_TOURNAMENT = "random tournament"
+    BAYESIAN_TOURNAMENT = "bayesian tournament"
     TOURNAMENT = "tournament"
 
 class Parameters(StrEnum):

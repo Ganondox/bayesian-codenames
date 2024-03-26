@@ -1,6 +1,5 @@
 import itertools
 import os
-from play_games.bots.types.bot_to_ai import is_ensemble
 from play_games.configs.enums import ExperimentType
 from play_games.configs.experiment_settings import ExperimentSettings
 from play_games.files.file_manager import FileManager
@@ -47,9 +46,6 @@ class RunTournament:
 
         for b1, b2 in itertools.product(spymasters, guessers):
             #I need to check that at least one of the bots is ensemble if this is a learning experiment
-            if is_learning_experiment:
-                #If neither bot is an ensemble, we don't play them together
-                if not(is_ensemble(b1) or is_ensemble(b2)): continue
                 
             utils.cond_print(f'Simulating {n} games with {b1} and {b2}', self.exp_settings.verbose_flag)
             self.run_games.run_n_games(n, b1, b2, iteration, parameter_index, seed=seed)

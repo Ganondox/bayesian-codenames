@@ -10,7 +10,7 @@ def create_round_logs_files(experiment_paths, name_root, val):
 
     round_log_filename = f"{name_elements.ROUND_LOG_PREFIX}{name_root}_{val}{name_elements.ROUND_LOG_FILE_TYPE}"
     parsed_data_filename = f"{name_elements.PARSED_DATA_PREFIX}{name_root}_{val}{name_elements.PARSED_DATA_FILE_TYPE}"
-    processed_data_filename = f"{name_elements.PROCESSED_DATA_PREFIX}{name_root}_{val}{name_elements.PROCESSED_DATA_PREFIX}"
+    processed_data_filename = f"{name_elements.PROCESSED_DATA_PREFIX}{name_root}_{val}{name_elements.PROCESSED_DATA_FILE_TYPE}"
     tournament_table_filename = f"{name_elements.TOURNAMENT_TABLE_PREFIX}{name_root}_{val}{name_elements.TOURNAMENT_TABLE_FILE_TYPE}"
     
     experiment_paths.round_log_filepaths.append(join(round_log_dir, round_log_filename))

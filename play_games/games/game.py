@@ -7,6 +7,8 @@ authors: Kim et al., Spencer Brosnahan, and Dallin Hunter
 import random
 import time
 from typing import TextIO
+
+import numpy as np
 from play_games.bots.spymasters.spymaster import Spymaster
 from play_games.bots.guessers.guesser import Guesser
 from play_games.bots.types import BotType
@@ -40,6 +42,7 @@ class Game:
         self.outfile = outfile
         self.do_print = print_boards
         self.game_start_time = time.time()
+        np.random.seed(seed)
         random.seed(seed)
 
         self.assign_words(board_words)

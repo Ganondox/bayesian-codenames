@@ -13,17 +13,17 @@ from play_games.configs.experiment_settings import ExperimentSettings
 from play_games.paths import file_paths
 from play_games.paths.creator.file_name_directory_elements import FileNameDirectoryElements as name_elements
 from ._base import ExperimentPathCreator
-from ._learning_experiment import LearningExperimentPathCreator
 from ._parameter_experiment import ParameterExperimentPathCreator
+from ._bayesian import BayesianPathCreator
 from ._tournament import TournamentPathCreator
 
 def get_experiment_specific_path_creator(experiment_settings, experiment_paths)-> ExperimentPathCreator:
     match experiment_settings.experiment_type:
-        case ExperimentType.LEARNING_EXPERIMENT:
-            return LearningExperimentPathCreator(experiment_settings, experiment_paths)
         case ExperimentType.PARAMETER_EXPERIMENT:
             return ParameterExperimentPathCreator(experiment_settings, experiment_paths)
-        case ExperimentType.TOURNAMENT | ExperimentType.RANDOM_TOURNAMENT:
+        case ExperimentType.BAYESIAN_TOURNAMENT:
+            return BayesianPathCreator(experiment_settings, experiment_paths)
+        case ExperimentType.TOURNAMENT:
             return TournamentPathCreator(experiment_settings, experiment_paths)
 
 

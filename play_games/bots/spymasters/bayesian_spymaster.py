@@ -1,11 +1,12 @@
+import json
 from matplotlib import pyplot as plt
 import numpy as np
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
 from play_games.bots.ai_components import vector_utils
 from play_games.bots.ai_components.bayesian_components import InternalGuesser
 from play_games.bots.bot_settings_obj import BotSettingsObj
+from play_games.bots.types import BotType
 from play_games.games.enums import Color, GameCondition
-
 
 class BayesianSpymaster:
     def __init__(self, team, guessers: list[InternalGuesser], prior, noise, samples, name):
@@ -33,6 +34,16 @@ class BayesianSpymaster:
     def initialize(self, bot_settings: BotSettingsObj):
         self.log_file = bot_settings.LEARN_LOG_FILE_CM
         self.log = self.log_file.write if self.log_file else (lambda *a, **kw: None)
+
+        self.log(
+            f"SPYMASTER: {self.__desc__()}\n"
+            f"internal_guessers: {json.dumps([str(g) for g in self.guessers])}\n"
+            f"samples: {self.samples}\n"
+            f"noise: {self.noise}\n"
+            f"prior: {self.prior}\n"
+            f"team: {self.team}\n"
+            "\n"
+        )
     
     def load_dict(self, boardwords: list[str]):
         self.boardwords = boardwords
@@ -125,7 +136,7 @@ class BayesianSpymaster:
         # - card_teams are the teams for each card
         # - game_log has all the history for this game
 
-        boardwords = [b for b in self.boardwords if b not in prev_guesses]
+        boardwords = player_words + opponent_words + bystander_words + [assassin_word]
         self.previous_guesses = self.current_guesses
         self.current_guesses = []
 
@@ -152,8 +163,8 @@ class BayesianSpymaster:
                     
             total = sum(self.posterior.values())
             self.posterior = {k:v/total for k,v in self.posterior.items()}
-        print(self.posterior)
-
+        if verbose: print(self.posterior)
+        self.log(f"updated posterior: {json.dumps({str(k):v for k,v in self.posterior.items()})}\n")
 
         #reset likeihoods
         for guesser in self.guessers:
@@ -178,7 +189,7 @@ class BayesianSpymaster:
         my_cards_left = len(player_words)
         possible_clue_words = self.get_possible_clues(player_words)
         for i, clue_word in enumerate(possible_clue_words, 1):
-            print(
+            if verbose: print(
                 "                                 \r"
                 f" {i} / {len(possible_clue_words)}", 
                 end='\r'
@@ -240,8 +251,11 @@ class BayesianSpymaster:
                     best_clue_distance = cur_clue_distance
 
                 self.likelihood = {g:temporary_likelihood[g][(best_clue_word, best_clue_num)] for g in self.guessers}
-        print()
+        if verbose: print()
         return (best_clue_word, ['target']*best_clue_num)
     
     def give_feedback(self, guess: str, *_):
         self.current_guesses.append(guess)
+
+    def __desc__(self):
+        return f"{BotType.BAYESIAN_SPYMASTER}:{self.noise}"

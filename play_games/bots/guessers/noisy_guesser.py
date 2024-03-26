@@ -3,6 +3,7 @@ from play_games.bots.ai_components.associator_ai_components.vector_data_cache im
 from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.guessers.guesser import Guesser
 from play_games.bots.ai_components import vector_utils
+from play_games.bots.types import BotType
 
 class NoisyGuesser(Guesser):
     def __init__(self):
@@ -30,3 +31,6 @@ class NoisyGuesser(Guesser):
         noisy_clue = vector_utils.perturb_embedding(self.vectors[clue], self.std)
         dists = [distance_vec(noisy_clue, self.vectors[w]) for w in words]
         return [words[i] for i in sorted(range(len(words)), key=dists.__getitem__)[:n]]
+    
+    def __desc__(self):
+        return f"{BotType.NOISY_GUESSER}:{self.std}"

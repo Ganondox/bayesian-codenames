@@ -24,7 +24,7 @@ class DistanceAssociator:
         for word in boardwords:
             self.board_dict[word] = self.assoc_cache.get_associations(word)
 
-    def give_feedback(self, guess, end_status):
+    def give_feedback(self, *_):
         pass
     
     def calculate_dist(self, w1, w2):

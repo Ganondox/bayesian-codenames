@@ -33,7 +33,7 @@ class RoundParseKeys:
 
 class LearnParseKeys:
     START_TOKEN = "STARTING TO LEARN"
-    CURR_TEAM_MATE_TOKEN = "guesser is"
+    CURR_TEAM_MATE_TOKEN = "GUESSER"
     CHOSEN_BOT_TOKEN = 'chosen bot'
     BOT_WEIGHTS_TOKEN = 'bot weights:'
     END_TOKEN = 'end_status'
@@ -62,18 +62,16 @@ class Stats: #ALL stats that will be used for graphing and for stat dict creatio
     NUM_ROUNDS_PER_GAME = "Number of Rounds Per Game" 
     GAME_WIN_LOSS = "Game Win Loss" 
     CLUE_NUM_BY_ROUND = "Clue Number Given By Round"
+    POSTERIORS_BY_ROUND = "Posteriors By Round"
     '''
     These are for learning experiments
     '''
-    ARM_WEIGHTS_BY_ROUND = "Ensemble Arm Weights by Round"
-    CHOSEN_BOTS_BY_ROUND = "Chosen Bots by Round"
 
     #KEYS FOR DATA PROCESSING (Use the keys for data gathering to access the saved dictionary and save data to a new dictionary)
     WIN_RATE = "Win Rate"
     AVG_WIN_TIME = "Average Win Time"
-    MIN_WIN_TIME = "Min Win Time"
-    PAIR_SCORES = "Bot Pairing Scores" #This can use different size vectors that are derived from the other stats. The final one is the average score. We want to keep all to make our cool graph
-    FINAL_PAIR_SCORE = "Final Pair Score"
+    AVG_TURNS_BY_GAME = "Average Turns By Game"
+    TURNS_BY_GAME = "Turns By Game"
     AVG_RED_FLIP_BY_GAME = "Average Red Words Flipped By Game"
     AVG_BLUE_FLIP_BY_GAME = "Average Blue Words Flipped By Game"
     AVG_BYSTANDER_FLIP_BY_GAME = "Average Bystander Words Flipped By Game"
@@ -84,23 +82,6 @@ class Stats: #ALL stats that will be used for graphing and for stat dict creatio
     ASSASSIN_FLIP_BY_GAME = "Assassin Words Flipped By Game"
     PERCENTAGE_BOT_CHOSEN = "Percentage of Time Bots are Chosen"
     ARM_WEIGHTS_BY_GAME = "Ensemble Arm Weights by Game"
-
-    RUNNING_AVG_WR = "Running Average Win Rate"
-    RUNNING_AVG_WT = "Running Average Win Time"
-    RUNNING_AVG_RED_FLIP_BY_GAME = "Running Average Red Words Flipped By Game"
-    RUNNING_AVG_BLUE_FLIP_BY_GAME = "Running Average Blue Words Flipped By Game"
-    RUNNING_AVG_BYSTANDER_FLIP_BY_GAME = "Running Average Bystander Words Flipped By Game"
-    RUNNING_AVG_ASSASSIN_FLIP_BY_GAME = "Running Average Assassin Words Flipped By Game"
-
-    SLIDING_WINDOW_PAIR_SCORES = "Sliding Window Average Pair Score"
-    SLIDING_WINDOW_AVG_WR = "Sliding Window Average Win Rate"
-    SLIDING_WINDOW_AVG_WT = "Sliding Window Average Win Time"
-    SLIDING_WINDOW_AVG_RED_FLIP_BY_GAME = "Sliding Window Average Red Words Flipped By Game"
-    SLIDING_WINDOW_AVG_BLUE_FLIP_BY_GAME = "Sliding Window Average Blue Words Flipped By Game"
-    SLIDING_WINDOW_AVG_BYSTANDER_FLIP_BY_GAME = "Sliding Window Average Bystander Words Flipped By Game"
-    SLIDING_WINDOW_AVG_ASSASSIN_FLIP_BY_GAME = "Sliding Window Average Assassin Words Flipped By Game"
-
-    FINAL_STAT_DIST = "Final Stat Distribution"
 
 class StatDictKeys: 
     G_LEARN_STATS = "Guesser Learning Stats"
@@ -116,16 +97,10 @@ class StatDictKeys:
 
 
 COMPILED_DATA_STATS = [Stats.WIN_RATE, \
-                            Stats.AVG_WIN_TIME, \
-                            Stats.FINAL_PAIR_SCORE]
-
+                            Stats.AVG_WIN_TIME,]
 #These are the stat keys we use for graphing. They are the same as the bread and butter stats
-MAIN_STATS_KEYS = [Stats.WIN_RATE, Stats.AVG_WIN_TIME, Stats.MIN_WIN_TIME, Stats.AVG_RED_FLIP_BY_GAME, Stats.AVG_BLUE_FLIP_BY_GAME, Stats.AVG_BYSTANDER_FLIP_BY_GAME, 
-    Stats.AVG_ASSASSIN_FLIP_BY_GAME, Stats.FINAL_PAIR_SCORE]
-
-PERFORMANCE_PROGRESSION_STATS = [Stats.PAIR_SCORES, Stats.RUNNING_AVG_WR, Stats.RUNNING_AVG_WT, Stats.RUNNING_AVG_RED_FLIP_BY_GAME, Stats.RUNNING_AVG_BLUE_FLIP_BY_GAME, Stats.RUNNING_AVG_BYSTANDER_FLIP_BY_GAME, Stats.RUNNING_AVG_ASSASSIN_FLIP_BY_GAME]
-PERFORMANCE_PROGRESSION_SLIDING_WINDOW_STATS = [Stats.SLIDING_WINDOW_PAIR_SCORES, Stats.SLIDING_WINDOW_AVG_WR, Stats.SLIDING_WINDOW_AVG_WT, Stats.SLIDING_WINDOW_AVG_RED_FLIP_BY_GAME, Stats.SLIDING_WINDOW_AVG_BLUE_FLIP_BY_GAME, Stats.SLIDING_WINDOW_AVG_BYSTANDER_FLIP_BY_GAME, Stats.SLIDING_WINDOW_AVG_ASSASSIN_FLIP_BY_GAME]
-FINAL_STAT_DIST_KEYS = MAIN_STATS_KEYS + [[StatDictKeys.CM_LEARN_STATS, Stats.PERCENTAGE_BOT_CHOSEN], [StatDictKeys.G_LEARN_STATS, Stats.PERCENTAGE_BOT_CHOSEN]]
+MAIN_STATS_KEYS = [Stats.WIN_RATE, Stats.AVG_WIN_TIME, Stats.AVG_TURNS_BY_GAME, Stats.TURNS_BY_GAME, Stats.AVG_RED_FLIP_BY_GAME, Stats.AVG_BLUE_FLIP_BY_GAME, Stats.AVG_BYSTANDER_FLIP_BY_GAME, 
+    Stats.AVG_ASSASSIN_FLIP_BY_GAME,]
 
 #These are the keys that we will use to separate different kinds of stats in our overall StatDict. RECONSIDER THESE!!! TOO COMPLEX
 
@@ -152,10 +127,6 @@ class DesiredStats:
                 DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
                 DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
             },
-            Stats.MIN_WIN_TIME : {
-                DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
-            }, 
             Stats.AVG_RED_FLIP_BY_GAME: {
                 DesiredStatsKeys.OPTIMAL_VALUE : 9.0,
                 DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MAX
@@ -172,10 +143,6 @@ class DesiredStats:
                 DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
                 DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
             }, 
-            Stats.FINAL_PAIR_SCORE : {
-                DesiredStatsKeys.OPTIMAL_VALUE : np.inf,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MAX
-            }
         }
     
     def get_desired_stats(self, stat_key):
@@ -237,23 +204,3 @@ def extract_val(val):
     if isinstance(val, (tuple, list)):
         return val[0]
     return val
-
-def find_ensemble(d):
-    for bot in d:
-        if is_ensemble(bot):
-            return bot
-    return None
-
-
-def is_rand_ensemble(bot):
-    return AIType.RANDOM_DISTANCE_ENSEMBLE == get_ai(bot)
-
-def find_rand_bot(bots):
-    #search through a list of bots and check their bot types. If they are rand, return it, otherwise return None 
-    for bot in bots:
-        if is_rand_ensemble(bot):
-            return bot
-    return
-
-def is_ensemble(b):
-    return AIType.DISTANCE_ENSEMBLE == get_ai(b)
