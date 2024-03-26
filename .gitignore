@@ -1,6 +1,7 @@
 /stats/saved_results/learning_experiments/*
 /stats/saved_results/parameter_experiments/*
 /stats/saved_results/tournaments/*
+/stats/saved_results/bayesian_tournaments/*
 /stats/other/anc_log.txt
 
 /raw_data/*
