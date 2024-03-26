@@ -46,8 +46,9 @@ def _parse_argv(argv):
         seed = None
     if len(argv) == 3: # file_runner.py [setting] [seed]
         seed = int(argv[2])
-        iteration_range[0] += seed
-        iteration_range[1] += seed
+        if iteration_range:
+            iteration_range[0] += seed
+            iteration_range[1] += seed
     elif len(argv) >= 4: # file_runner.py [setting] [start] [finish]
         iteration_range = [int(argv[2]), int(argv[3])]
 
