@@ -7,7 +7,7 @@
 !/raw_data/.gitkeep
 
 /data_objects/associator_objects/*
-!/data_objects/associator_osbjects/.gitkeep
+!/data_objects/associator_objects/.gitkeep
 
 *.secret
 *.pyc
