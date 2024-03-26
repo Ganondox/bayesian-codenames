@@ -109,25 +109,12 @@ class DataProcessor:
         #Add a new key into the data structure
         processed_data[lp][cm][g][key] = {}
 
-        if key not in parsed_data[lp][cm][g]:
-            return
 
         #Check the percentages of each bot chosen
-        bots_chosen = parsed_data[lp][cm][g][key][Stats.CHOSEN_BOTS_BY_ROUND]
-        bot_counts = {}
-        for bot in bots_chosen:
-            if bot not in bot_counts:
-                bot_counts[bot] = 1
-            else:
-                bot_counts[bot] += 1
+        posteriors = parsed_data[lp][cm][g][key][Stats.POSTERIORS_BY_ROUND]
         
-        for bot in bot_counts:
-            bot_counts[bot] = bot_counts[bot] / len(bots_chosen)
+        processed_data[lp][cm][g][key][Stats.POSTERIORS_BY_ROUND] = posteriors
 
-        processed_data[lp][cm][g][key][Stats.PERCENTAGE_BOT_CHOSEN] = bot_counts
-
-        #Now we need to find the arm weights by game
-        processed_data[lp][cm][g][key][Stats.ARM_WEIGHTS_BY_GAME] = self.calculate_arm_weights_by_game(parsed_data, lp, cm, g, key)
 
     def load_processed_data(self):
         processed_data = {}

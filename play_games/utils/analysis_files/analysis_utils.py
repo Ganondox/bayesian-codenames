@@ -80,8 +80,6 @@ class Stats: #ALL stats that will be used for graphing and for stat dict creatio
     BLUE_FLIP_BY_GAME = "Blue Words Flipped By Game"
     BYSTANDER_FLIP_BY_GAME = "Bystander Words Flipped By Game"
     ASSASSIN_FLIP_BY_GAME = "Assassin Words Flipped By Game"
-    PERCENTAGE_BOT_CHOSEN = "Percentage of Time Bots are Chosen"
-    ARM_WEIGHTS_BY_GAME = "Ensemble Arm Weights by Game"
 
 class StatDictKeys: 
     G_LEARN_STATS = "Guesser Learning Stats"
@@ -102,51 +100,6 @@ COMPILED_DATA_STATS = [Stats.WIN_RATE, \
 MAIN_STATS_KEYS = [Stats.WIN_RATE, Stats.AVG_WIN_TIME, Stats.AVG_TURNS_BY_GAME, Stats.TURNS_BY_GAME, Stats.AVG_RED_FLIP_BY_GAME, Stats.AVG_BLUE_FLIP_BY_GAME, Stats.AVG_BYSTANDER_FLIP_BY_GAME, 
     Stats.AVG_ASSASSIN_FLIP_BY_GAME,]
 
-#These are the keys that we will use to separate different kinds of stats in our overall StatDict. RECONSIDER THESE!!! TOO COMPLEX
-
-
-class MinMaxKeys:
-    MIN = "min"
-    MAX = "max"
-
-class DesiredStatsKeys:
-    OPTIMAL_VALUE = "opimal value"
-    OPTIMAL_EXTREME = "optimal extreme"
-
-class DesiredStats:
-    def __init__(self):
-        self.set_desired_stats()
-    
-    def set_desired_stats(self):
-        self.desired_stats = {
-            Stats.WIN_RATE : {
-                DesiredStatsKeys.OPTIMAL_VALUE : 1.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MAX
-            },
-            Stats.AVG_WIN_TIME : {
-                DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
-            },
-            Stats.AVG_RED_FLIP_BY_GAME: {
-                DesiredStatsKeys.OPTIMAL_VALUE : 9.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MAX
-            }, 
-            Stats.AVG_BLUE_FLIP_BY_GAME : {
-                DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
-            }, 
-            Stats.AVG_BYSTANDER_FLIP_BY_GAME : {
-                DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
-            }, 
-            Stats.AVG_ASSASSIN_FLIP_BY_GAME : {
-                DesiredStatsKeys.OPTIMAL_VALUE : 0.0,
-                DesiredStatsKeys.OPTIMAL_EXTREME : MinMaxKeys.MIN
-            }, 
-        }
-    
-    def get_desired_stats(self, stat_key):
-        return self.desired_stats[stat_key]
 
 def load_dict(bests_json_path):
     best_team_mates = {}
@@ -163,42 +116,6 @@ def load_json(filepath):
     with open(filepath, 'r') as f:
         json_obj = json.load(f)
     return json_obj
-
-def graph_multiple_bar_chart(x_axis, y_axes, x_label, y_label, labels, title, save_path):
-        width = .1
-        ind = np.arange(len(x_axis))
-        bars = []
-        for i in range(len(y_axes)):
-            bars.append(plt.bar(ind + (width * i), y_axes[i], width, label = labels[i]))
-
-        plt.ylabel(y_label)
-        plt.xlabel(x_label)
-        plt.xticks(ind+width, x_axis, rotation=-45)
-        plt.title(title)
-        plt.legend( tuple(bars), tuple(labels))
-        plt.savefig(save_path)
-        plt.clf() 
-
-def graph_bar_chart(x_axis, y_axis, title, x_label, y_label, save_file):
-    fig, ax = plt.subplots(layout="constrained")
-    ax.bar(x_axis, y_axis)
-    # plt.title(title)
-    # plt.ylabel(y_label)
-    # plt.xlabel(x_label)
-    plt.xticks(rotation = -45, fontsize = 5)
-    plt.savefig(save_file)
-    plt.clf() 
-
-def create_single_line_plot(x_axis, y_axis, label, title, x_label, y_label, save_file, has_best_fit):
-    if has_best_fit:
-        m, b = np.polyfit(x_axis, y_axis, 1)
-        plt.plot(x_axis, m * x_axis + b)
-    plt.plot(x_axis, y_axis, label = label)
-    # plt.title(title)
-    # plt.ylabel(y_label)
-    # plt.xlabel(x_label)
-    plt.savefig(save_file)
-    plt.clf()
 
 def extract_val(val):
     if isinstance(val, (tuple, list)):

@@ -1,8 +1,7 @@
 /stats/saved_results/learning_experiments/*
 /stats/saved_results/parameter_experiments/*
 /stats/saved_results/tournaments/*
-/stats/saved_results/bayesian_tournaments/*
-/stats/other/anc_log.txt
+/stats/saved_results/bayesian_tournament/*
 
 /raw_data/*
 !/raw_data/.gitkeep

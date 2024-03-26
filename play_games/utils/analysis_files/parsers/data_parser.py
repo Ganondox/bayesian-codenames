@@ -51,9 +51,9 @@ class DataParser:
         for cm in merged_dict:
             for g in merged_dict[cm]:
                 if type == Types.CM and (AIType.BAYESIAN == get_ai(cm)):
-                    merged_dict[cm][g][StatDictKeys.CM_LEARN_STATS] = learning_dict[g]
+                    merged_dict[cm][g][StatDictKeys.CM_LEARN_STATS] = learning_dict[cm][g]
                 elif type == Types.G and (AIType.BAYESIAN == get_ai(g)):
-                    merged_dict[cm][g][StatDictKeys.G_LEARN_STATS] = learning_dict[cm]
+                    merged_dict[cm][g][StatDictKeys.G_LEARN_STATS] = learning_dict[g][cm]
 
     def load_parsed_data(self):
         parsed_data = {}

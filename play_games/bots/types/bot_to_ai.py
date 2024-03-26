@@ -37,4 +37,4 @@ __BOT_TO_AI = {
 }
 
 def get_ai(bot_type_key: 'BotType') -> 'AIType':
-    return __BOT_TO_AI[bot_type_key]
+    return __BOT_TO_AI.get(bot_type_key.strip().split(':', maxsplit=1)[0], None)

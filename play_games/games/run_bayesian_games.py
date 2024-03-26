@@ -42,9 +42,7 @@ class RunBayesianGames:
     def run_n_games(self, n, bot_type_1, bot_type_2, noise_cm, noise_g, seed=0):
         #Create the settings object to pass into the bots
         bot_settings = self.get_bot_settings()
-        bot_settings.LEARN_LOG_FILE_CM.write("STARTING TO LEARN")
-        bot_settings.LEARN_LOG_FILE_CM.write(f"GUESSER: {bot_type_1}")
-
+        bot_settings.LEARN_LOG_FILE_CM.write("STARTING TO LEARN\n")
         # init bots
         bot_settings.EMBEDDING_NOISE = noise_cm
         codemaster_bot, _ = self.object_manager.bot_initializer.init_bots(bot_type_1, None, bot_settings)
@@ -56,6 +54,7 @@ class RunBayesianGames:
         codenames_words = self.load_words()
 
         for i in range(n):
+            bot_settings.LEARN_LOG_FILE_CM.write(f"GUESSER: {bot_type_2 if not hasattr(guesser_bot, '__desc__') else guesser_bot.__desc__()}\n")
             utils.cond_print('Running game {}...'.format(i), self.object_manager.experiment_settings.verbose_flag)
             # select BOARD_SIZE game words
             game_seed = i + seed
@@ -73,7 +72,7 @@ class RunBayesianGames:
 
             curr_game = Game(bot_type_1, bot_type_2, codemaster_bot, guesser_bot, game_words, game_seed, self.object_manager.file_manager.ROUND_LOG_FILE, self.object_manager.experiment_settings.print_boards)
             curr_game.run()
+            bot_settings.LEARN_LOG_FILE_CM.write("ENDING\n")
 
 
         utils.cond_print('Successfully ran {} games with {} and {} bots and noises {} and {}. See game logs for details'.format(n, bot_type_1, bot_type_2, noise_cm, noise_g), self.object_manager.experiment_settings.verbose_flag)
-        bot_settings.LEARN_LOG_FILE_CM.write("ENDING")

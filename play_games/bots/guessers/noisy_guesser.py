@@ -10,6 +10,7 @@ class NoisyGuesser(Guesser):
         pass
 
     def initialize(self, bot_settings_obj: BotSettingsObj):
+        self.lm = bot_settings_obj.BOT_TYPE_G
         if isinstance(bot_settings_obj.CONSTRUCTOR_PATHS, (list, tuple)):
             self.vectors = VectorDataCache(*bot_settings_obj.CONSTRUCTOR_PATHS)
         else:
@@ -33,4 +34,4 @@ class NoisyGuesser(Guesser):
         return [words[i] for i in sorted(range(len(words)), key=dists.__getitem__)[:n]]
     
     def __desc__(self):
-        return f"{BotType.NOISY_GUESSER}:{self.std}"
+        return f"{BotType.NOISY_GUESSER}:{self.lm}:{self.std}"

@@ -32,6 +32,7 @@ class BayesianSpymaster:
        self.posterior = self.prior.copy()
 
     def initialize(self, bot_settings: BotSettingsObj):
+        self.verbose_print = bot_settings.PRINT_LEARNING
         self.log_file = bot_settings.LEARN_LOG_FILE_CM
         self.log = self.log_file.write if self.log_file else (lambda *a, **kw: None)
 
@@ -47,6 +48,7 @@ class BayesianSpymaster:
     
     def load_dict(self, boardwords: list[str]):
         self.boardwords = boardwords
+        self.current_boardwords = boardwords.copy()
         self.reset()
     
     def toNum(self, guesses, length):
@@ -127,7 +129,7 @@ class BayesianSpymaster:
         return results
         
 
-    def generate_clue(self, player_words, prev_guesses, opponent_words, assassin_word, bystander_words, verbose=True)->tuple[str, list[str]]:
+    def generate_clue(self, player_words, prev_guesses, opponent_words, assassin_word, bystander_words)->tuple[str, list[str]]:
          # We try all clues on the guesser we were given, sampled multiple times to account for noise
         # Whichever one gives the highest expected value is the one we should go for
         # Break ties by minimum average distance to guessed correct clues
@@ -136,7 +138,7 @@ class BayesianSpymaster:
         # - card_teams are the teams for each card
         # - game_log has all the history for this game
 
-        boardwords = player_words + opponent_words + bystander_words + [assassin_word]
+        boardwords = self.current_boardwords
         self.previous_guesses = self.current_guesses
         self.current_guesses = []
 
@@ -163,7 +165,7 @@ class BayesianSpymaster:
                     
             total = sum(self.posterior.values())
             self.posterior = {k:v/total for k,v in self.posterior.items()}
-        if verbose: print(self.posterior)
+        if self.verbose_print: print(self.posterior)
         self.log(f"updated posterior: {json.dumps({str(k):v for k,v in self.posterior.items()})}\n")
 
         #reset likeihoods
@@ -178,9 +180,6 @@ class BayesianSpymaster:
         best_clue_num = None
         best_clue_distance = None
 
-        if verbose:
-            print(f"{self.name} CM-K is generating a clue for guessed : {prev_guesses}")
-
         # How many of my cards are left to guess?  That is the highest
         # clue num that I should try
 
@@ -189,7 +188,7 @@ class BayesianSpymaster:
         my_cards_left = len(player_words)
         possible_clue_words = self.get_possible_clues(player_words)
         for i, clue_word in enumerate(possible_clue_words, 1):
-            if verbose: print(
+            if self.verbose_print and i%50==0: print(
                 "                                 \r"
                 f" {i} / {len(possible_clue_words)}", 
                 end='\r'
@@ -251,11 +250,12 @@ class BayesianSpymaster:
                     best_clue_distance = cur_clue_distance
 
                 self.likelihood = {g:temporary_likelihood[g][(best_clue_word, best_clue_num)] for g in self.guessers}
-        if verbose: print()
+        if self.verbose_print: print()
         return (best_clue_word, ['target']*best_clue_num)
     
     def give_feedback(self, guess: str, *_):
         self.current_guesses.append(guess)
+        self.current_boardwords.remove(guess)
 
     def __desc__(self):
         return f"{BotType.BAYESIAN_SPYMASTER}:{self.noise}"

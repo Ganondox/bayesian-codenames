@@ -26,69 +26,39 @@ class ResultsAnalyzer:
         
 
     def run_analysis(self):
-        
-        if self.experiment_settings.experiment_type == ExperimentType.LEARNING_EXPERIMENT:
+        match self.experiment_settings.experiment_type:
+            case ExperimentType.BAYESIAN_TOURNAMENT:
+                round_logs = self.experiment_paths.round_log_filepaths
+                learn_logs_cm = self.experiment_paths.learn_log_filepaths_cm
+                learn_logs_g = self.experiment_paths.learn_log_filepaths_g
+                parsed_data_filepaths = self.experiment_paths.parsed_data_filepaths
+                processed_data_filepaths = self.experiment_paths.processed_data_filepaths
 
-            round_logs = self.experiment_paths.round_log_filepaths
-            learn_logs_cm = self.experiment_paths.learn_log_filepaths_cm
-            learn_logs_g = self.experiment_paths.learn_log_filepaths_g
-            parsed_data_filepaths = self.experiment_paths.parsed_data_filepaths
-            processed_data_filepaths = self.experiment_paths.processed_data_filepaths
+                if not self.use_preloaded_parsed:
+                    parsed_data = self.data_parser.parse_data(round_logs, learn_logs_cm, learn_logs_g, parsed_data_filepaths)
+                else:
+                    parsed_data = self.data_parser.load_parsed_data()
+                if not self.use_preloaded_processed:
+                    processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
+                else:
+                    processed_data = self.data_processer.load_processed_data()
 
-            if not self.use_preloaded_parsed:
-                parsed_data = self.data_parser.parse_data(round_logs, learn_logs_cm, learn_logs_g, parsed_data_filepaths)
-            else:
-                parsed_data = self.data_parser.load_parsed_data()
-            if not self.use_preloaded_processed:
-                processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
-            else:
-                processed_data = self.data_processer.load_processed_data()
-
-        elif self.experiment_settings.experiment_type == ExperimentType.PARAMETER_EXPERIMENT:
-
-            round_logs = self.experiment_paths.round_log_filepaths
-
-            parsed_data_filepaths = self.experiment_paths.parsed_data_filepaths
-            
-            processed_data_filepaths = self.experiment_paths.processed_data_filepaths
-
-            if not self.use_preloaded_parsed:
-                parsed_data = self.data_parser.parse_data(round_logs, [], [], parsed_data_filepaths)
-            else:
-                parsed_data = self.data_parser.load_parsed_data()
-            if not self.use_preloaded_processed:
-                processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
-            else:
-                processed_data = self.data_processer.load_processed_data()
-
-
-        
-
-        else: #this is a tournament
-            round_logs = self.experiment_paths.round_log_filepaths
-            parsed_data_filepaths = self.experiment_paths.parsed_data_filepaths
-            processed_data_filepaths = self.experiment_paths.processed_data_filepaths
-
-            if not self.use_preloaded_parsed:
-                parsed_data = self.data_parser.parse_data(round_logs, [], [], parsed_data_filepaths)
-            else:
-                parsed_data = self.data_parser.load_parsed_data()
-            if not self.use_preloaded_processed:
-                processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
-            else:
-                processed_data = self.data_processer.load_processed_data()
                 
-    def run_analysis_file(self, round_logs, parsed_data_filepaths, processed_data_filepaths):
-        if not self.use_preloaded_parsed:
-            parsed_data = self.data_parser.parse_data(round_logs, [], [], parsed_data_filepaths)
-        else:
-            parsed_data = self.data_parser.load_parsed_data()
-        if not self.use_preloaded_processed:
-            processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
-        else:
-            processed_data = self.data_processer.load_processed_data()
 
-    
+            case ExperimentType.TOURNAMENT | _:
+                round_logs = self.experiment_paths.round_log_filepaths
+                parsed_data_filepaths = self.experiment_paths.parsed_data_filepaths
+                processed_data_filepaths = self.experiment_paths.processed_data_filepaths
+
+                if not self.use_preloaded_parsed:
+                    parsed_data = self.data_parser.parse_data(round_logs, [], [], parsed_data_filepaths)
+                else:
+                    parsed_data = self.data_parser.load_parsed_data()
+                if not self.use_preloaded_processed:
+                    processed_data = self.data_processer.process_data(parsed_data, processed_data_filepaths)
+                else:
+                    processed_data = self.data_processer.load_processed_data()
+        
 
 
     
