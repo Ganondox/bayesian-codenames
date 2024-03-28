@@ -54,7 +54,7 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
     def update_bad_distances(self, bad_words):
         bad_dists_dict = self.closest_bad_words
         for pos_clue in self.association_location_dict:
-            if pos_clue in bad_dists_dict and bad_dists_dict[pos_clue][1] not in self.prev_clues: 
+            if pos_clue in bad_dists_dict and bad_dists_dict[pos_clue][1] not in self.guessed: 
                 continue
 
             worst_bad = np.inf
@@ -71,8 +71,12 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
         # the blue_word_threshold)
         self.update_bad_distances(badwords)
         
-        for pos_clue in list(self.association_location_dict.keys()):
+        for pos_clue in tuple(self.association_location_dict.keys()):
             associated_board_words = self.association_location_dict[pos_clue]
             closest_bad = self.closest_bad_words[pos_clue][0]
             words_to_keep = [word_dist for word_dist in associated_board_words if word_dist[1] < closest_bad]
-            self.association_location_dict[pos_clue] = words_to_keep
+
+            if words_to_keep:
+                self.association_location_dict[pos_clue] = words_to_keep
+            else:
+                del self.association_location_dict[pos_clue]
