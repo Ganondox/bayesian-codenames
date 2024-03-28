@@ -19,11 +19,13 @@ class InternalGuesser:
 
         self.associations = AssociatorDataCache(associations_filepath,)
         self.associations.load_cache(n_assoc)
-        self.__hash = hash(vector_filepath) + 33* hash(associations_filepath)
 
 
     def __hash__(self) -> int:
-        return self.__hash
+        return hash(self.lm)
+    
+    def __eq__(self, other):
+        return hasattr(other, "lm") and other.lm == self.lm
     
     def __str__(self):
         return self.lm.__str__()
