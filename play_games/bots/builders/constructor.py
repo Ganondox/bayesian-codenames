@@ -8,11 +8,10 @@ from play_games.bots.guessers.vector_baseline_guesser import VectorBaselineGuess
 
 class BotConstructorType(IntEnum):
 
-    VECTOR_BASELINE_SPYMASTER =               1, None
-    DISTANCE_ASSOCIATOR_AI_SPYMASTER =        3, DistanceAssociatorAISpymaster
-    BAYESIAN_SPYMASTER =                      4, BayesianSpymaster
-    VECTOR_BASELINE_GUESSER =                 7, VectorBaselineGuesser
-    NOISY_GUESSER =                           8, NoisyGuesser
+    DISTANCE_ASSOCIATOR_AI_SPYMASTER =        1, DistanceAssociatorAISpymaster
+    BAYESIAN_SPYMASTER =                      2, BayesianSpymaster
+    VECTOR_BASELINE_GUESSER =                 3, VectorBaselineGuesser
+    NOISY_GUESSER =                           4, NoisyGuesser
     
     def __new__(cls, value, contr, *args, **kwargs):
         obj = int.__new__(cls)

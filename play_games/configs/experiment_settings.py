@@ -10,7 +10,7 @@ be kept for all the files.
 import json
 import configparser
 
-from play_games.configs.enums import ExperimentType, IndependentVariables, ConfigKeys
+from play_games.configs.enums import ExperimentType, ConfigKeys
 from play_games.bots.types import BotType
 
 from play_games.paths import file_paths
@@ -40,7 +40,6 @@ class ExperimentSettings:
     noise_parameters: float | None
 
     #don't touch this
-    independent_variable: IndependentVariables | None
     variable_space: list[float | int] | None
 
     #Learning experiment settings
@@ -76,9 +75,6 @@ class ExperimentSettings:
         self.n_associations = read_int(config_section, ConfigKeys.N_ASSOCIATIONS, fallback=300)
         self.noise_parameters = read_float(config_section, ConfigKeys.NOISE_PARAMETERS, fallback=0.1)
 
-        self.independent_variable = read_enum(IndependentVariables, config_section, ConfigKeys.INDEPENDENT_VARIABLE, fallback=None)
-        self.variable_space = read_json(config_section, ConfigKeys.VARIABLE_SPACE, fallback=None)
-
         self.iteration_range = read_list(int, config_section, ConfigKeys.ITERATION_RANGE, accept_null=True, fallback=None)
         self.include_same_lm = read_boolean(config_section, ConfigKeys.INCLUDE_SAME_LM, fallback=True)
         
@@ -94,18 +90,6 @@ class ExperimentSettings:
     def setup(self):
         self.get_settings_from_config()
         if self.experiment_type is None: self.experiment_type = ExperimentType.TOURNAMENT
-        if self.experiment_type == ExperimentType.PARAMETER_EXPERIMENT: 
-            self.determine_variables()
-
-    def determine_variables(self):
-        #Here, we go through all the possible independent variables for an experiment and we find which one it is
-        match(self.independent_variable):
-            case IndependentVariables.N_ASSOCIATIONS:
-                self.n_associations = self.variable_space
-            case IndependentVariables.ENSEMBLE_PARAMETERS:
-                self.ensemble_parameters = self.variable_space
-            case IndependentVariables.NOISE_PARAMETERS:
-                self.noise_parameters = self.variable_space
 
 
 #_______________________________ CONFIG PARSING FUNCTIONS _______________________________#

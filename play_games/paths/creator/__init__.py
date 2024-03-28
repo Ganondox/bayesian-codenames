@@ -13,14 +13,11 @@ from play_games.configs.experiment_settings import ExperimentSettings
 from play_games.paths import file_paths
 from play_games.paths.creator.file_name_directory_elements import FileNameDirectoryElements as name_elements
 from ._base import ExperimentPathCreator
-from ._parameter_experiment import ParameterExperimentPathCreator
 from ._bayesian import BayesianPathCreator
 from ._tournament import TournamentPathCreator
 
 def get_experiment_specific_path_creator(experiment_settings, experiment_paths)-> ExperimentPathCreator:
     match experiment_settings.experiment_type:
-        case ExperimentType.PARAMETER_EXPERIMENT:
-            return ParameterExperimentPathCreator(experiment_settings, experiment_paths)
         case ExperimentType.BAYESIAN_TOURNAMENT:
             return BayesianPathCreator(experiment_settings, experiment_paths)
         case ExperimentType.TOURNAMENT:
@@ -80,5 +77,3 @@ class FilePathCreator:
         self.experiment_paths.round_logs_dir_path = join(root_path, name_elements.RAW_DATA_DIR, name_elements.ROUND_LOGS_DIR)
         self.experiment_paths.parsed_data_dir_path = join(root_path, name_elements.PARSED_DATA_DIR)
         self.experiment_paths.processed_data_dir_path = join(root_path, name_elements.PROCESSED_DATA_DIR)
-        self.experiment_paths.cm_stats_dir_path = join(root_path, name_elements.VISUALIZATIONS_DIR, name_elements.FIGURES_DIR, name_elements.CM_STATS_DIR)
-        self.experiment_paths.tournament_tables_dir_path = join(root_path, name_elements.VISUALIZATIONS_DIR, name_elements.TABLES_DIR, name_elements.TOURNAMENT_TABLES_DIR)

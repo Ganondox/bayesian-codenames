@@ -14,7 +14,6 @@ class BayesianPathCreator(ExperimentPathCreator):
 
     def create_directories(self, root_dir):
         self.experiment_paths.learn_logs_dir_path = join(root_dir, name_elements.RAW_DATA_DIR, name_elements.LEARN_LOGS_DIR)
-        self.experiment_paths.learn_tables_dir_path = join(root_dir, name_elements.TABLES_DIR)
 
     def create_file_paths(self, filename_prefix):
         create_round_logs_files(self.experiment_paths, filename_prefix, self.experiment_settings.seed)

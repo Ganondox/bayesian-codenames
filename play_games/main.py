@@ -64,7 +64,6 @@ def _setup_settings():
 def _run_with_settings():
     start = time.time()
     match experiment_settings.experiment_type:
-        case ExperimentType.LEARNING_EXPERIMENT:  file_runner.run_learning_experiment()
         case ExperimentType.BAYESIAN_TOURNAMENT:  file_runner.run_bayesian_tournament(seed=seed)
         case ExperimentType.TOURNAMENT:           file_runner.run_tournament(seed=seed)
     print(f"Duration {datetime.timedelta(seconds=time.time()-start)}")

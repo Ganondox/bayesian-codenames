@@ -49,43 +49,6 @@ class ExperimentPaths:
     processed_data_dir_path = None
     parsed_data_filepaths = []
     processed_data_filepaths = []
-    #data interpretation
-    cm_stats_dir_path = None
-    learn_figs_dir_path = None
-    performance_progression_dir_path = None 
-    performance_progression_sliding_window_dir_path = None 
-    arm_weights_dir_path = None 
-    percent_selected_dir_path = None
-    final_stat_distribution_dir_path = None
-    tournament_tables_dir_path = None
-    learn_tables_dir_path = None
-    param_comparison_figs_dir_path = None
-    cm_stat_filepaths = [] #each element is a dictionary
-    performance_progression_filepaths = {} #cm or g, stat
-    performance_progression_sliding_window_filepaths = {}
-    arm_weights_filepaths = {} #cm or g
-    percent_selected_filepaths = {} #cm or g
-    final_stat_distribution_filepaths = {}
-    param_comparison_fig_filepaths = {} #each element is a dictionary
-    tournament_table_filepaths = []
-    learn_table_filepaths = []
-
-    #compiled data
-    learn_period_analyses_dir_path = None
-    learn_experiment_analyses_dir_path = None
-    param_experiment_analysis_filepath = None #not an array because there is at most one
-    learn_experiment_analysis_filepath_cm = None #not an array because there is at most one
-    learn_experiment_analysis_filepath_g = None #not an array because there is at most one
-    learn_period_analysis_filepaths_cm = [] 
-    learn_period_analysis_filepaths_g = [] 
-
-###---Stat filepaths___###
-dist_assoc_solitair_table_path = os.path.join(results_root, "comparison_files", "comparison_objects", "processed_data_distance_associator_solitair.json")
-model_path = os.path.join(project_root, "data_objects", "models", "sklinear36model-nobias.joblib")
-
-###---DETECT---###
-freq_path = os.path.join(project_root, "raw_data", "word_freqs.json")
-d2v_path = os.path.join(project_root, "raw_data", "d2v_lm.txt")
 
 ###---Word Pools---###
 wordlist_path = os.path.join(project_root, 'raw_data', 'actual-final-wl.txt')

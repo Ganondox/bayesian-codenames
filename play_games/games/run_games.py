@@ -11,7 +11,7 @@ import numpy as np
 from .game import Game
 from play_games.utils import utils
 from play_games.bots import bot_settings_obj
-from play_games.configs.enums import ExperimentType, IndependentVariables
+from play_games.configs.enums import ExperimentType
 from play_games.utils.object_manager import ObjectManager
 from play_games.paths import file_paths
 
@@ -44,13 +44,7 @@ class RunGames:
     def get_bot_settings(self, p):
         #We pass in n because it can be changed in a parameter experiment
         bot_settings = bot_settings_obj.get_bot_settings(self.object_manager.experiment_settings)
-
-        if self.object_manager.experiment_settings.experiment_type == ExperimentType.PARAMETER_EXPERIMENT:
-            match self.object_manager.experiment_settings.independent_variable:
-                case IndependentVariables.N_ASSOCIATIONS:
-                    bot_settings.N_ASSOCIATIONS = self.object_manager.experiment_settings.variable_space[p]
                 
-
         bot_settings.LOG_FILE = self.object_manager.file_manager.ROUND_LOG_FILE
         if len(self.experiment_paths.learn_log_filepaths_cm) > 0:
             bot_settings.LEARN_LOG_FILE_CM = self.object_manager.file_manager.LEARN_LOG_FILE_CM

@@ -9,7 +9,7 @@ from scipy.spatial.distance import euclidean
 __vectors_cache = dict()
 __distance_cache = dict()
 
-__dist_fn = euclidean #quick_dist, cosine
+__dist_fn = euclidean # cosine
 
 def distance_vec(vec1, vec2):
     return __dist_fn(vec1, vec2)

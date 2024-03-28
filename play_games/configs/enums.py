@@ -10,13 +10,8 @@ class ConfigKeys(StrEnum):
     GUESSERS = "guessers"
     EXPERIMENT_TYPE = "experiment_type"
     CUSTOM_ROOT_NAME = "custom_root_name"
-    LEARNING_ALGORITHM = "learning_algorithm"
-    IS_PARAMETER_OPTIMIZATION = "is_parameter_optimization"
-    CURR_ITERATION = "curr_iteration"
     ITERATION_RANGE = "iteration_range"
     INCLUDE_SAME_LM = "include_same_lm"
-    CONVERGENCE_THRESHOLD = "convergence_threshold"
-    ENSEMBLE_PARAMETERS = "ensemble_parameters"
     NOISE_PARAMETERS = "noise_parameters"
     DETECT = "detect"
     INDEPENDENT_VARIABLE = "independent_variable"
@@ -33,8 +28,3 @@ class ExperimentType(StrEnum):
 
 class Parameters(StrEnum):
     N_ASSOCIATIONS = "Number of Associations"
-
-class IndependentVariables(StrEnum):
-    N_ASSOCIATIONS = ConfigKeys.N_ASSOCIATIONS
-    ENSEMBLE_PARAMETERS = ConfigKeys.ENSEMBLE_PARAMETERS
-    NOISE_PARAMETERS = ConfigKeys.NOISE_PARAMETERS

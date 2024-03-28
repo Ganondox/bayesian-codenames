@@ -23,5 +23,5 @@ class Spymaster(abc.ABC):
         raise NotImplementedError()
     
     @abc.abstractmethod
-    def give_feedback(self, guess: str, end_status: GameCondition):
+    def give_feedback(self, guess: str, color: str, end_status: GameCondition):
         pass

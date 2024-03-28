@@ -4,8 +4,6 @@ from play_games.games.run_bayesian_tournament import RunBayesianTournament
 from utils.object_manager import ObjectManager
 from games.run_tournament import RunTournament
 
-from games.run_learning_experiment import RunLearningExperiment
-from games.run_parameter_experiment import RunParameterExperiment
 from files.file_cleaner import FileCleaner
 from files.file_alignment_checker import FileAlignmentChecker
 
@@ -22,11 +20,6 @@ class FileRunner():
     def run_bayesian_tournament(self, seed=0):
         run_tournament = RunBayesianTournament(self.object_manager)
         run_tournament.run(seed=seed)
-
-    def run_learning_experiment(self):
-        #There will be some sort of check to see if we just want to analyze results. If so, we do so here
-        run_learning_experiment = RunLearningExperiment(self.object_manager)
-        run_learning_experiment.run()
     
     def run_analysis(self):
         self.object_manager.results_analyzer.run_analysis()

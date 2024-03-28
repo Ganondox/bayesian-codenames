@@ -21,6 +21,7 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
     def generate_clue(self, player_words, prev_clues, opponent_words, assassin_word, bystander_words):
         # find max occurrence - this will be the clue (see fixme comment above)
         self.prev_clues = prev_clues
+        self.player_words = player_words
         bad_words = list(opponent_words)
         bad_words.extend(bystander_words)
         bad_words.append(assassin_word)
@@ -28,9 +29,6 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
         self.association_location_dict = self.find_common_word_associations(player_words) 
         self.filter_unwanted_clues(bad_words)
         clue, target_words = self.find_best_clue()
-
-        if len(target_words) <= 0:
-            target_words = [max(player_words, key=lambda x: self.calculate_dist(x, clue)),]
 
         return clue, target_words
     
@@ -48,7 +46,21 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
                 best_clue = (pos_clue, num_targets, total_distance)
 
         clue = best_clue[0]
-        targets = [target for target, _ in self.association_location_dict[clue]]
+        if clue is None:
+            min_word = None
+            min_clue = None
+            min_val = np.inf
+            for pos_clue in self.get_possible_clue_words(self.player_words):
+                local_min_val, local_min_word = min((self.calculate_dist(pos_clue, w), w) for w in self.player_words)
+                if local_min_val < min_val:
+                    min_val = local_min_val
+                    min_word = local_min_word
+                    min_clue = pos_clue
+            
+            targets = [min_word]
+            clue = min_clue
+        else:
+            targets = [target for target, _ in self.association_location_dict[clue]]
         return clue, targets
     
     def update_bad_distances(self, bad_words):
