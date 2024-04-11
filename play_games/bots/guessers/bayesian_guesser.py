@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
 from play_games.bots.ai_components import vector_utils
-from play_games.bots.ai_components.bayesian_components import ClueHistory, InternalSpymaster, WorldSampler
+from play_games.bots.ai_components.bayesian_components import History, InternalSpymaster, WorldSampler
 from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.types import BotType
 from play_games.games.enums import Color, GameCondition
@@ -15,26 +15,20 @@ class BayesianGuesser:
         self.prior = prior
         self.noise = noise
         self.samples = samples
-        self.guess_threshold = 1
-        self.skip_threshold = 1
+        self.guess_threshold = 1 # double
+        self.skip_threshold = 1 # double
         self.name = name
         self.current_guesses = []
         self.previous_guesses = []
 
         self.sampler = WorldSampler()
-        self.history = ClueHistory()
-        self.posterior = prior.copy()
-        self.spymaster_likelihood = {}
-        self.state_likelihood = {}
-
-        for g in spymasters:
-            self.spymaster_likelihood[g] = {}
+        self.history = History()
+        self.spymaster_posterior = prior.copy() # P(m)
         
-
     def reset(self):
        self.previous_guesses = []
        self.current_guesses = []
-       self.posterior = self.prior.copy()
+       self.spymaster_posterior = self.prior.copy()
        self.history.reset()
 
     def initialize(self, bot_settings: BotSettingsObj):
@@ -59,31 +53,31 @@ class BayesianGuesser:
         self.reset()
 
     def guess_clue(self, clue, num_guess, prev_guesses)->list[str]:
-        self.history.record((clue, num_guess))
-        #TODO: does this go after or before?
 
-        p_prime = 0
+        p_prime = 0 # liklihood of observed clue
         samples = self.sampler.sample_states(100)
         sample_hashes = [self.hash_state(s) for s in samples]
+        state_posterior = {} # p(w)
 
         for sample in sample_hashes:
             self.state_likelihood[sample] = 1
 
         for turn, clue_t in enumerate(self.history):
-            if clue == None: continue #??
+            if clue == None: continue
 
             for w_hash, w in zip(sample_hashes, samples):
                 ptw = 0 # TODO: I think this is wrong
                 for m in self.spymasters:
-                    mt = m.previous(turn)
-                    lt = mt.get_clue(w)
-                    pt = None, (clue_t, lt) # WIZARDRY!
+                    lt = m.get_clue(w)
+                    # calculate pdf of each component in x and multiple all together
+                    pt = None, (clue_t, lt) # WIZARDRY! Don't worry about noise
 
-                    ptw += pt*self.spymaster_likelihood[m] # TODO: What is this?
+                    ptw += pt*self.spymaster_likelihood[m] 
                 self.state_likelihood[w_hash] *= ptw
         
         # TODO: Finish the rest, get internal spymaster working
         
+        self.history.record((clue, num_guess))
         return []
     
     def give_feedback(self, guess: str, color: Color, status: GameCondition):

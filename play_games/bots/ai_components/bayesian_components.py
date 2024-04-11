@@ -51,14 +51,38 @@ class InternalSpymaster:
         self.associations = AssociatorDataCache(associations_filepath,)
         self.associations.load_cache(n_assoc)
 
-    def reset(self):
-        pass
+    def reset(self, boardwords):
+        self.boardwords = list(boardwords)
 
-    def get_clue(self)->tuple[str, int]:
-        pass
+    def get_clue(self, state, boardwords, num_player)->tuple[str, int]:
+        possible_clue_words = tuple(set().update(self.associations[word] for word in boardwords))
 
-    def previous(self, turn)->'InternalSpymaster':
-        pass
+        max_size_num = 0
+        max_clue_word = None
+        min_dist = float('inf')
+
+        for clue in possible_clue_words:
+            ranked_boardwords = sorted(
+                [(self.vectors.distance_word(clue, w), w) for w in boardwords]
+            )
+
+            num = 0
+            dist = 0
+            for d, w in ranked_boardwords:
+                if num == num_player or state[w] != Color.TEAM:
+                    break
+                num+=1
+                dist+=d
+
+            if num != 0 and num >= max_size_num and (num != max_size_num or dist < min_dist):
+                max_clue_word = clue
+                min_dist = dist
+                max_size_num = num
+            
+        if max_clue_word == None:
+            return random.choice(possible_clue_words), 1
+        else:
+            return max_clue_word, max_size_num
 
     def __hash__(self) -> int:
         return hash(self.lm)
