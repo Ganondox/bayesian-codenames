@@ -22,5 +22,5 @@ class Guesser(ABC):
         pass
 
     @abstractmethod
-    def give_feedback(self, end_status: GameCondition, word_type: Color):
+    def give_feedback(self, guess: str, word_type: Color, end_status: GameCondition):
         pass

@@ -35,6 +35,7 @@ class BotType(StrEnum):
     FAST_TEXT_DISTANCE_ASSOCIATOR = "fast-text distance associator"
 
     BAYESIAN_SPYMASTER = "bayesian spymaster"
+    BAYESIAN_GUESSER = "bayesian guesser"
     NOISY_GUESSER = "noisy guesser"
 
     @property
