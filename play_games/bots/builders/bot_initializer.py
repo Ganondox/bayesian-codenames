@@ -1,5 +1,6 @@
-from play_games.bots.ai_components.bayesian_components import LANGUAGE_MODELS, InternalGuesser
+from play_games.bots.ai_components.bayesian_components import LANGUAGE_MODELS, InternalGuesser, InternalSpymaster
 from play_games.bots.bot_settings_obj import BotSettingsObj
+from play_games.bots.guessers.bayesian_guesser import BayesianGuesser
 from play_games.bots.spymasters.bayesian_spymaster import BayesianSpymaster
 from play_games.bots.types import AIType, BotType
 from play_games.games.enums import Color
@@ -28,6 +29,8 @@ class BotInitializer():
             match bot_ai_type:
                 case AIType.DISTANCE_ASSOCIATOR:
                     spymaster_bot = BotConstructorType.DISTANCE_ASSOCIATOR_AI_SPYMASTER.build()
+                case AIType.NOISY:
+                    pass
                 case AIType.BAYESIAN:
                     spymaster_bot = self.initialize_bayesian_spymaster(bot_settings)
                 case _:
@@ -47,6 +50,8 @@ class BotInitializer():
                 case AIType.NOISY:
                     bot_settings.CONSTRUCTOR_PATHS = bot_paths.get_vector_path_for_lm(bot_settings.BOT_TYPE_G)
                     guesser_bot = BotConstructorType.NOISY_GUESSER.build()
+                case AIType.BAYESIAN:
+                    guesser_bot = self.initialize_bayesian_guesser(bot_settings)
                 case _:
                     print("Error loading guesser")
                     return 
@@ -63,3 +68,12 @@ class BotInitializer():
         samples = 10 # try other values
         name = "Bayesian"
         return BayesianSpymaster(team, guessers, prior, noise, samples, name)        
+    
+    def initialize_bayesian_guesser(self, bot_settings_obj: BotSettingsObj):
+        spymasters = [ InternalSpymaster(lm, bot_settings_obj.N_ASSOCIATIONS) for lm in LANGUAGE_MODELS ]
+        team = Color.TEAM
+        prior = {g:1/len(spymasters) for g in spymasters}
+        noise = 0#bot_settings_obj.EMBEDDING_NOISE #1.7 # try other values
+        samples = 10000 # try other values
+        name = "Bayesian"
+        return BayesianGuesser(team, spymasters, prior, noise, samples, name)  

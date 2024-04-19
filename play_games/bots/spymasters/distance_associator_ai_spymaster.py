@@ -1,10 +1,12 @@
 
 from copy import deepcopy
+import random
 from bots.ai_components.associator_ai_components.distance_associator import DistanceAssociator
 import numpy as np
 
 from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.spymasters.spymaster import Spymaster
+from play_games.games.enums import Color
 
 class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
     def __init__(self):
@@ -18,9 +20,15 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
         self.closest_bad_words.clear()
         return super().load_dict(boardwords)
     
-    def generate_clue(self, player_words, prev_clues, opponent_words, assassin_word, bystander_words):
+    def generate_clue(self, state, boardwords, num_team_left):
         # find max occurrence - this will be the clue (see fixme comment above)
-        self.prev_clues = prev_clues
+        player_words, opponent_words, assassin_word, bystander_words = (
+            [b for b in boardwords if state[b] == Color.TEAM],
+            [b for b in boardwords if state[b] == Color.OPPONENT],
+            [b for b in boardwords if state[b] == Color.ASSASSIN][0],
+            [b for b in boardwords if state[b] == Color.BYSTANDER],
+        )
+
         self.player_words = player_words
         bad_words = list(opponent_words)
         bad_words.extend(bystander_words)
@@ -31,6 +39,37 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
         clue, target_words = self.find_best_clue()
 
         return clue, target_words
+
+        # possible_clue_words = set()
+        # for word in player_words:
+        #     possible_clue_words.update(self.assoc_cache.associations[word])
+        # possible_clue_words = tuple(possible_clue_words)
+
+        # max_size_num = 0
+        # max_clue_word = None
+        # min_dist = float('inf')
+
+        # for clue in possible_clue_words:
+        #     dist_fn = lambda w: self.vectors.distance_word(clue, w)
+        #     ranked_boardwords = sorted(player_words +  opponent_words + bystander_words +[assassin_word], key=dist_fn)
+
+        #     num = 0
+        #     dist = 0
+        #     for w in ranked_boardwords:
+        #         if num == len(player_words) or w not in player_words:
+        #             break
+        #         num+=1
+        #         dist+=dist_fn(w)
+
+        #     if num != 0 and num >= max_size_num and (num != max_size_num or dist < min_dist):
+        #         max_clue_word = clue
+        #         min_dist = dist
+        #         max_size_num = num
+            
+        # if max_clue_word == None:
+        #     return random.choice(possible_clue_words), ['None']
+        # else:
+        #     return max_clue_word, ['None']*max_size_num
     
     def find_best_clue(self): 
         #We must first order our dictionary

@@ -19,7 +19,7 @@ class Spymaster(abc.ABC):
         pass
     
     @abc.abstractmethod
-    def generate_clue(self, player_words, prev_clues, opponent_words, assassin_word, bystander_words)->tuple[str, list[str]]:
+    def generate_clue(self, color_dict, words, num_team)->tuple[str, int]:
         raise NotImplementedError()
     
     @abc.abstractmethod
