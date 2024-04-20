@@ -22,10 +22,10 @@ def concatenate(word, wordvecs):
 def perturb_embedding(v, std):
     if not std or std == 0:
         return v
-    return np.random.normal(v, std/np.sqrt(len(v)))
+    return np.random.normal(v, std)
 
 def get_perturbed_euclid_distances(clue_emb, embeddings, std, k):
-    noisy_embeddings = np.random.normal(clue_emb, std/np.sqrt(len(clue_emb)), (k,len(clue_emb)))
+    noisy_embeddings = np.random.normal(clue_emb, std, (k,len(clue_emb)))
     def get_normal(x):
         return np.linalg.norm(noisy_embeddings-x, axis=1)
     distances = np.apply_along_axis(get_normal, 1, embeddings)

@@ -78,14 +78,17 @@ class BayesianGuesser:
         for clue_t, bw_t, _ in self.history:
             if clue_t == None: continue
             for w_hash, w in enumerate(samples):
-                ptw = 0 
+                ptw = 0
                 for m_i, m in enumerate(self.spymasters):
                     l_t, _ = m.generate_clue(w, bw_t)
                     if self.noise == 0:
                         pt = 1 if l_t == clue_t else 0
                     else:
-                        pt = np.prod(norm.pdf(m.vectors[clue_t], loc=m.vectors[l_t], scale=self.noise)) # This would be replaced with a more accurate Voronoi based thingy
-                    ptw += pt*self.spymaster_posterior[m_i]
+                        z = (m.vectors[clue_t] - m.vectors[l_t])/self.noise
+                        z[z>0]*=-1
+                        densities = np.log(2) + norm.logcdf(z)
+                        pt = np.exp(np.sum(densities)) # This would be replaced with a more accurate Voronoi based thingy
+                    ptw += pt * self.spymaster_posterior[m_i]
                 state_likelihood[w_hash] *= ptw
             state_posterior*=state_likelihood
 
@@ -95,7 +98,11 @@ class BayesianGuesser:
                 if self.noise == 0:
                     p =  1 if l == clue else 0
                 else:
-                    p = np.prod(norm.pdf(m.vectors[clue], loc=m.vectors[l], scale=self.noise))
+                    z = (m.vectors[clue] - m.vectors[l])/self.noise
+                    z[z>0]*=-1
+                    densities = np.log(2) + norm.logcdf(z)
+                    p = np.sum(densities) # This would be replaced with a more accurate Voronoi based thingy
+                    p = np.exp(p)
            
                 spymaster_likelihood[m_i] += p * state_posterior[w_hash] 
                 state_likelihood[w_hash] += p * self.spymaster_posterior[m_i]
@@ -113,6 +120,7 @@ class BayesianGuesser:
         if (total:= self.spymaster_posterior.sum()) != 0:
             self.spymaster_posterior /= total
         print("P:", p_prime)
+        print("STATE:", np.linalg.norm(state_posterior, ord=np.inf))
         self.guess_iterator = GuessIterator(self, clue, num_guess, samples, state_posterior)
         return self.guess_iterator
     

@@ -146,7 +146,7 @@ if __name__ == '__main__':
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(GUESSER)
-    bot_settings.EMBEDDING_NOISE = 1.7
+    bot_settings.EMBEDDING_NOISE = 0
     test_cm, bayes_g = obj.bot_initializer.init_bots(BotType.NOISY_SPYMASTER, BotType.BAYESIAN_GUESSER, bot_settings)
     _, test_g = obj.bot_initializer.init_bots(None, BotType.W2V_BASELINE_GUESSER, bot_settings)
     bot_settings = get_bot_settings(CODEMASTER)

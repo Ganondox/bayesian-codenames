@@ -11,6 +11,7 @@ from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.spymasters.spymaster import Spymaster
 from play_games.games.enums import Color
 from play_games.paths import bot_paths
+from play_games.bots.ai_components import vector_utils
 
 class NoisySpymaster(Spymaster):
     def __init__(self, lm):
@@ -55,9 +56,9 @@ class NoisySpymaster(Spymaster):
                 max_clue_word, max_size_num, min_dist = clue, num, dist
             
         if max_clue_word == None:
-            return random.choice(possible_clues), 1
-        else:
-            return self._add_noise(max_clue_word), max_size_num
+            max_clue_word, max_size_num = random.choice(possible_clues), 1
+        
+        return self._add_noise(max_clue_word), max_size_num
 
     def give_feedback(self, guess: str, color: Color, end_status):
         pass
@@ -68,7 +69,22 @@ class NoisySpymaster(Spymaster):
         return list(possible_clue_words)
     
     def _add_noise(self, word):
-        return word
+        if self.noise == 0:
+            return word
+        
+        noisy = vector_utils.perturb_embedding(self.vectors[word], self.noise)
+        associations = [self.vectors[w] for w in self.associations[word]]
+        associations.append(self.vectors[word])
+        dists: np.ndarray = np.linalg.norm(associations - noisy, axis=1)
+        min_i = dists.argmin()
+
+        if min_i == len(associations)-1:
+            return word
+        else:
+            return self.associations[word][min_i]
+
+
+         
 
     def __hash__(self) -> int:
         return hash(self.lm)

@@ -72,8 +72,8 @@ class BotInitializer():
     
     def initialize_bayesian_guesser(self, bot_settings_obj: BotSettingsObj):
         team = Color.TEAM
-        noise = 0#bot_settings_obj.EMBEDDING_NOISE #1.7 # try other values
-        samples = 100000 # try other values
+        noise = 0.2 #bot_settings_obj.EMBEDDING_NOISE #1.7 # try other values
+        samples = 1000 # try other values
         name = "Bayesian"
 
         spymasters = []
