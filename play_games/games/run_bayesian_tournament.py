@@ -52,11 +52,11 @@ class RunBayesianTournament:
         n = self.exp_settings.n_games 
         
         for b1, b2 in itertools.product(spymasters, guessers):
-            noises_cm = (0,) if b1 != BotType.BAYESIAN_SPYMASTER else np.linspace(0, 50, 6)
-            noises_g = np.linspace(0, 50, 6)
+            noises_cm = np.linspace(0, 2, 6)
+            noises_g = np.linspace(0, 2, 6)
             for noise_cm, noise_g in itertools.product(noises_cm, noises_g):
-                    utils.cond_print(f'Simulating {n} games with {b1} and {b2} with noise {noise_cm}', self.exp_settings.verbose_flag)
-                    self.run_games.run_n_games(int(n), b1, b2, noise_cm, noise_g, seed=seed)
+                utils.cond_print(f'Simulating {n} games with {b1} and {b2} with noise {noise_cm} and {noise_g}', self.exp_settings.verbose_flag)
+                self.run_games.run_n_games(int(n), b1, b2, noise_cm, noise_g, seed=seed)
         
         self.file_manager.close_learn_cm_file()
         self.file_manager.close_round_file()

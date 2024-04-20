@@ -97,7 +97,7 @@ class BayesianSpymaster:
                 case _ if guess_color == Color.opponent(self.team):
                     value-=1
                 case Color.BYSTANDER:
-                    pass
+                    value-=0.5
                 case Color.ASSASSIN:
                     value-=9
 
@@ -223,7 +223,7 @@ class BayesianSpymaster:
                 mode_model = max(self.guessers, key=self.posterior.__getitem__)
                 cur_clue_distance = sum(
                     d
-                    for d,_ in sorted(
+                    for d in sorted(
                         mode_model.vectors.distance_word(clue_word, w)
                         for w in player_words
                     )[:cur_clue_num]

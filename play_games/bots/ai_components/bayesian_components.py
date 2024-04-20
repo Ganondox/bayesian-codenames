@@ -8,7 +8,7 @@ from play_games.games.enums import Color
 from play_games.paths import bot_paths
 
 
-LANGUAGE_MODELS = [LMType.W2V,]# LMType.GLOVE_300, LMType.CN_NB, LMType.D2V, LMType.FAST_TEXT]
+LANGUAGE_MODELS = [LMType.W2V, LMType.GLOVE_300, LMType.CN_NB, LMType.D2V, LMType.FAST_TEXT]
 
 class InternalGuesser:
 
@@ -24,78 +24,6 @@ class InternalGuesser:
         self.associations = AssociatorDataCache(associations_filepath,)
         self.associations.load_cache(n_assoc)
 
-
-    def __hash__(self) -> int:
-        return hash(self.lm)
-    
-    def __eq__(self, other):
-        return hasattr(other, "lm") and other.lm == self.lm
-    
-    def __str__(self):
-        return self.lm.__str__()
-    
-    def __repr__(self):
-        return self.lm.__str__()
-    
-
-class InternalSpymaster:
-
-    def __init__(self, lm, n_assoc):
-        self.lm = lm
-        vector_filepath = bot_paths.get_vector_path_for_lm(lm),
-        associations_filepath = bot_paths.get_association_path_for_lm(lm)
-        if isinstance(vector_filepath, (tuple, list)):
-            self.vectors = VectorDataCache(*vector_filepath)
-        else:
-            self.vectors = VectorDataCache(vector_filepath)
-
-        self.associations = AssociatorDataCache(associations_filepath,)
-        self.associations.load_cache(n_assoc)
-
-    def reset(self, boardwords):
-        self.boardwords = list(boardwords)
-        possible_clues = self.possible_clues(boardwords)
-        self.sorted_words = {
-            clue:
-            heapq.nsmallest(9, [(self.vectors.distance_word(clue, w), w) for w in boardwords])
-            for clue in possible_clues
-        }
-
-    def get_clue(self, state, boardwords, num_left)->tuple[str, int]:
-        possible_clue_words = self.possible_clues(boardwords, state)
-        boardwords = set(boardwords)
-        max_clue_word, max_size_num, min_dist = None, 0, float('inf')
-        num_player = sum(1 for w in boardwords if state[w] == Color.TEAM)
-
-        for clue in possible_clue_words:
-            sort = []
-            for info in self.sorted_words[clue]:
-                if info[1] not in boardwords:
-                    continue
-                if len(sort) == num_player:
-                    break
-                sort.append(info)
-
-            num = 0
-            dist = 0
-            for d, w in sort:
-                if state[w] != Color.TEAM:
-                    break
-                num+=1
-                dist+=d
-
-            if num != 0 and num >= max_size_num and (num != max_size_num or dist < min_dist):
-                max_clue_word, max_size_num, min_dist = clue, num, dist
-            
-        if max_clue_word == None:
-            return random.choice(possible_clue_words), 1
-        else:
-            return max_clue_word, max_size_num
-
-    def possible_clues(self, boardwords, state=None):
-        possible_clue_words = set()
-        possible_clue_words.update(*[self.associations[w] for w in boardwords if state is None or state[w] == Color.TEAM])
-        return list(possible_clue_words)
 
     def __hash__(self) -> int:
         return hash(self.lm)

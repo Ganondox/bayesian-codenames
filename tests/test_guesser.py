@@ -52,7 +52,7 @@ def main():
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(N_GUESSER)
-    bot_settings.EMBEDDING_NOISE = 0
+    bot_settings.NOISE_SM = 0
     bayes, test_g = obj.bot_initializer.init_bots(CODEMASTER, BotType.NOISY_GUESSER, bot_settings)
 
     bot_settings = get_bot_settings(CODEMASTER)

@@ -9,6 +9,7 @@ from play_games.bots.ai_components.associator_ai_components.associator_data_cach
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
 from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.spymasters.spymaster import Spymaster
+from play_games.bots.types import BotType
 from play_games.games.enums import Color
 from play_games.paths import bot_paths
 from play_games.bots.ai_components import vector_utils
@@ -27,7 +28,7 @@ class NoisySpymaster(Spymaster):
             self.vectors = VectorDataCache(vector_filepath)
         self.associations = AssociatorDataCache(associations_filepath,)
         self.associations.load_cache(settings_obj.N_ASSOCIATIONS)
-        self.noise = settings_obj.EMBEDDING_NOISE
+        self.noise = settings_obj.NOISE_SM
 
     def load_dict(self, boardwords):
         self.boardwords = list(boardwords)
@@ -84,7 +85,8 @@ class NoisySpymaster(Spymaster):
             return self.associations[word][min_i]
 
 
-         
+    def __desc__(self):
+        return f"{BotType.NOISY_SPYMASTER}:{self.lm}:{self.noise}"
 
     def __hash__(self) -> int:
         return hash(self.lm)

@@ -44,8 +44,8 @@ words = utils.load_word_list(file_paths.board_words_path)
 # DEFAULT VALUES
 GAMES_TO_PLAY = 50
 SEED = 2050
-CODEMASTER = BotType.W2V_BASELINE_GUESSER #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
-GUESSER = BotType.W2V_BASELINE_GUESSER
+CODEMASTER = BotType.FAST_TEXT_DISTANCE_ASSOCIATOR #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
+GUESSER = BotType.FAST_TEXT_BASELINE_GUESSER
 os.environ['MKL_VERBOSE']="1"
 
 def get_bot_settings(b_type):
@@ -53,6 +53,10 @@ def get_bot_settings(b_type):
     bot_settings.N_ASSOCIATIONS = 500
     bot_settings.CONSTRUCTOR_PATHS = bot_paths.get_paths_for_bot(b_type)
     bot_settings.BOT_TYPE_SM = get_lm(b_type)
+    bot_settings.SAMPLE_SIZE_SM = 10
+    bot_settings.SAMPLE_SIZE_G = 1000
+    bot_settings.NOISE_G = 0
+    bot_settings.PRINT_LEARNING = True
     #bot_settings.LOG_FILE = file_paths.anc_log_path
 
     if len(sys.argv) > 1:
@@ -146,12 +150,12 @@ if __name__ == '__main__':
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(GUESSER)
-    bot_settings.EMBEDDING_NOISE = 0
+    bot_settings.NOISE_SM = 0
     test_cm, bayes_g = obj.bot_initializer.init_bots(BotType.NOISY_SPYMASTER, BotType.BAYESIAN_GUESSER, bot_settings)
     _, test_g = obj.bot_initializer.init_bots(None, BotType.W2V_BASELINE_GUESSER, bot_settings)
     bot_settings = get_bot_settings(CODEMASTER)
 
-    bot_settings.EMBEDDING_NOISE = 1.6
+    bot_settings.NOISE_SM = 1.6
     # bot_settings.SAMPLE_SIZE = 10
     #bot_settings = get_bot_settings(CODEMASTER)
 

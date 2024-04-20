@@ -11,13 +11,20 @@ class BotSettingsObj:
     BOT_TYPE_G = None
     PRINT_LEARNING = None
     CONSTRUCTOR_PATHS = None
-    EMBEDDING_NOISE = None
+    NOISE_SM = None
+    NOISE_G = None
+    SAMPLE_SIZE_SM = None
+    SAMPLE_SIZE_G = None
     AI_TYPE = None
+
 
 def get_bot_settings(experiment_settings: ExperimentSettings):
     bot_settings = BotSettingsObj()
     bot_settings.N_ASSOCIATIONS = experiment_settings.n_associations
-    bot_settings.EMBEDDING_NOISE = experiment_settings.noise_parameters
+    bot_settings.NOISE_SM = experiment_settings.noise_sm
+    bot_settings.NOISE_G = experiment_settings.noise_g
+    bot_settings.SAMPLE_SIZE_SM = experiment_settings.sample_size_sm
+    bot_settings.SAMPLE_SIZE_G = experiment_settings.sample_size_g
     bot_settings.INCLUDE_SAME_LM = experiment_settings.include_same_lm
     bot_settings.PRINT_LEARNING = experiment_settings.print_learning
 

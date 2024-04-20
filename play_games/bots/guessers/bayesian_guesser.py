@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
 from play_games.bots.ai_components import vector_utils
-from play_games.bots.ai_components.bayesian_components import History, InternalSpymaster, WorldSampler
+from play_games.bots.ai_components.bayesian_components import History, WorldSampler
 from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.spymasters.spymaster import Spymaster
 from play_games.bots.types import BotType
@@ -36,15 +36,6 @@ class BayesianGuesser:
         self.spymaster_posterior = self.prior.copy() # P(m)
         self.guess_iterator = None
 
-    def exp_value(self, color):
-        return EV[color]
-        
-    def reset(self):
-        self.guesses_given = []
-        self.spymaster_posterior = self.prior.copy()
-        self.history.reset()
-
-
     def initialize(self, bot_settings: BotSettingsObj):
         self.verbose_print = bot_settings.PRINT_LEARNING
         self.log_file = bot_settings.LEARN_LOG_FILE_CM
@@ -65,10 +56,12 @@ class BayesianGuesser:
         self.current_boardwords = boardwords.copy()
         self.sampler.reset(boardwords)
         [s.load_dict(boardwords) for s in self.spymasters]
-        self.reset()
+        self.guesses_given = []
+        self.spymaster_posterior = self.prior.copy()
+        self.history.reset()
 
     def guess_clue(self, clue, num_guess, _)->list[str]:
-        print(dict(zip(self.spymasters, self.spymaster_posterior)))
+        if self.verbose_print: print(dict(zip(self.spymasters, self.spymaster_posterior)))
         p_prime = 0 # liklihood of observed clue
         samples = self.sampler.sample_states(self.samples)
         state_likelihood = np.ones(len(samples)) # p(w)
@@ -108,8 +101,11 @@ class BayesianGuesser:
                 state_likelihood[w_hash] += p * self.spymaster_posterior[m_i]
                 p_prime += p * state_posterior[w_hash] * self.spymaster_posterior[m_i]
 
+        self.log(f"P': {p_prime}\n")
+        if self.verbose_print: print("P", p_prime)
         if p_prime == 0:
             self.history.record(None)
+            if self.verbose_print: print("SKIPPED UPDATE")
         else:
             self.spymaster_posterior *= spymaster_likelihood
             state_posterior *= state_likelihood
@@ -119,8 +115,10 @@ class BayesianGuesser:
             state_posterior /= total
         if (total:= self.spymaster_posterior.sum()) != 0:
             self.spymaster_posterior /= total
-        print("P:", p_prime)
-        print("STATE:", np.linalg.norm(state_posterior, ord=np.inf))
+        self.log(
+            f"State Posterior: {state_posterior}\n"
+            f"Spymaster Posterior: {self.spymaster_posterior}\n"
+        )
         self.guess_iterator = GuessIterator(self, clue, num_guess, samples, state_posterior)
         return self.guess_iterator
     
@@ -160,6 +158,7 @@ class GuessIterator:
 
     def feedback(self, guess: str, color: Color):
         if self._get_p_color(color)[guess] == 0:
+            if self.guesser.verbose_print: print("CLEARED BELEIFES")
             self.guesser.spymaster_posterior = self.guesser.prior.copy()
         for i in range(len(self.samples)):
             if self.samples[i] and self.samples[i][guess] != color:
@@ -176,7 +175,7 @@ class GuessIterator:
         num_guesses_given = 0
         best_spymaster = np.argmax(self.guesser.spymaster_posterior)
         best_spymaster = self.guesser.spymasters[best_spymaster]
-
+        self.guesser.log(f"SM selected: {best_spymaster}\n")
 
         while num_guesses_given <= self.num_guess:
             if self.guesser.sampler.team_left == 0: break
@@ -192,7 +191,6 @@ class GuessIterator:
             )
 
             closest_cards = []
-            print(len([v for v in self.samples if v is not None]))
             for c in sorted_cards:
                 for w_hash, w in enumerate(self.samples):
                     if w is None: continue
@@ -225,13 +223,6 @@ class GuessIterator:
                     if ev > maxv:
                         maxv = ev
                         maxc = c
-
-            """
-            STOP IF:
-            out end turn
-            ranout of turn aka +1
-            or if guesses card on the team
-            """
 
             yield maxc
             num_guesses_given+=1
