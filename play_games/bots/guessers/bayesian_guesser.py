@@ -26,8 +26,6 @@ class BayesianGuesser:
         self.prior = np.array(list(prior.values()))
         self.noise = noise
         self.samples = samples
-        self.guess_threshold = 1 # double
-        self.skip_threshold = 0 # double
         self.name = name
         self.guesses_given = []
 
@@ -40,6 +38,9 @@ class BayesianGuesser:
         self.verbose_print = bot_settings.PRINT_LEARNING
         self.log_file = bot_settings.LEARN_LOG_FILE_G
         self.log = self.log_file.write if self.log_file else (lambda *a, **kw: None)
+        
+        self.guess_threshold = 1 if bot_settings.GUESS_THRESHOLD is None else bot_settings.GUESS_THRESHOLD
+        self.skip_threshold = 0 if bot_settings.SKIP_THRESHOLD is None else bot_settings.SKIP_THRESHOLD
 
         self.log(
             f"GUESSER: {self.__desc__()}\n"
@@ -132,16 +133,7 @@ class BayesianGuesser:
             self.guesses_given.clear()
 
     def __desc__(self):
-        return f"{BotType.BAYESIAN_GUESSER}:{self.noise}"
-    
-    def hash_state(self, state, radix=25):
-        '''This relies on the order of the boardwords staying constant, so don't change boardwords'''
-        num = 0
-        exponent = 0
-        for c in map(state.__getitem__, self.boardwords):
-            num += (c+1) * radix ** exponent
-            exponent += 1
-        return num
+        return f"{BotType.BAYESIAN_GUESSER}:{self.noise}:{self.skip_threshold}:{self.guess_threshold}"
     
 class GuessIterator:
     def __init__(self, guesser: BayesianGuesser, clue, num_guess, samples, state_posterior):

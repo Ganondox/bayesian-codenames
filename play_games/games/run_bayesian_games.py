@@ -40,7 +40,7 @@ class RunBayesianGames:
         return bot_settings
 
 
-    def run_n_games(self, n, bot_type_1, bot_type_2, noise_cm, noise_g, seed=0):
+    def run_n_games(self, n, bot_type_1, bot_type_2, noise_cm, noise_g, th, seed=0):
         #Create the settings object to pass into the bots
         bot_settings = self.get_bot_settings()
         bot_settings.LEARN_LOG_FILE_CM.write("STARTING TO LEARN\n")
@@ -56,6 +56,7 @@ class RunBayesianGames:
         ### GUESSER
         bot_settings.NOISE_G = noise_g
         if get_ai(bot_type_2) == AIType.BAYESIAN:
+            bot_settings.SKIP_THRESHOLD, bot_settings.GUESS_THRESHOLD = th
             _, guesser_bot = self.object_manager.bot_initializer.init_bots(None, bot_type_2, bot_settings)
         else:
             bot_settings.BOT_TYPE_G = get_lm(bot_type_2)

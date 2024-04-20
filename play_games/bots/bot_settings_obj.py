@@ -15,6 +15,8 @@ class BotSettingsObj:
     NOISE_G = None
     SAMPLE_SIZE_SM = None
     SAMPLE_SIZE_G = None
+    SKIP_THRESHOLD = None
+    GUESS_THRESHOLD = None
     AI_TYPE = None
 
 
