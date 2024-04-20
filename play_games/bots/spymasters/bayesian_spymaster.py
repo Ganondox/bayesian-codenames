@@ -125,7 +125,7 @@ class BayesianSpymaster:
             possible_clue_words.update(*[guesser.associations[w] for w in boardwords])
         return list(possible_clue_words)    
 
-    def generate_clue(self, card_teams, boardwords, num_team_left)->tuple[str, list[str]]:
+    def generate_clue(self, card_teams, boardwords)->tuple[str, list[str]]:
          # We try all clues on the guesser we were given, sampled multiple times to account for noise
         # Whichever one gives the highest expected value is the one we should go for
         # Break ties by minimum average distance to guessed correct clues
@@ -180,7 +180,7 @@ class BayesianSpymaster:
                 f" {i} / {len(possible_clue_words)}", 
                 end='\r'
             )
-            for cur_clue_num in range(1, num_team_left + 1):
+            for cur_clue_num in range(1, len(player_words) + 1):
                 ev = 0
                 cur_clue_distance = 0
                 #semiconverstive optimization - only try clues that are "good" for at least one guesser, otherwise break num

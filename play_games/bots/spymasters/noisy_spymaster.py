@@ -26,6 +26,7 @@ class NoisySpymaster(Spymaster):
             self.vectors = VectorDataCache(vector_filepath)
         self.associations = AssociatorDataCache(associations_filepath,)
         self.associations.load_cache(settings_obj.N_ASSOCIATIONS)
+        self.noise = settings_obj.EMBEDDING_NOISE
 
     def load_dict(self, boardwords):
         self.boardwords = list(boardwords)
@@ -36,12 +37,11 @@ class NoisySpymaster(Spymaster):
             for clue in possible_clues
         }
 
-    def get_clue(self, state, boardwords)->tuple[str, int]:
+    def generate_clue(self, state, boardwords)->tuple[str, int]:
         possible_clues = self.get_possible_clues(boardwords, state)
         boardwords = set(boardwords)
         max_clue_word, max_size_num, min_dist = None, 0, float('inf')
         num_player = sum(1 for w in boardwords if state[w] == Color.TEAM)
-
         for clue in possible_clues:
             num = 0
             dist = 0
@@ -57,7 +57,7 @@ class NoisySpymaster(Spymaster):
         if max_clue_word == None:
             return random.choice(possible_clues), 1
         else:
-            return max_clue_word, max_size_num
+            return self._add_noise(max_clue_word), max_size_num
 
     def give_feedback(self, guess: str, color: Color, end_status):
         pass
@@ -66,6 +66,9 @@ class NoisySpymaster(Spymaster):
         possible_clue_words = set()
         possible_clue_words.update(*[self.associations[w] for w in boardwords if state is None or state[w] == Color.TEAM])
         return list(possible_clue_words)
+    
+    def _add_noise(self, word):
+        return word
 
     def __hash__(self) -> int:
         return hash(self.lm)

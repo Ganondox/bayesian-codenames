@@ -20,7 +20,7 @@ class DistanceAssociatorAISpymaster(DistanceAssociator, Spymaster):
         self.closest_bad_words.clear()
         return super().load_dict(boardwords)
     
-    def generate_clue(self, state, boardwords, num_team_left):
+    def generate_clue(self, state, boardwords):
         # find max occurrence - this will be the clue (see fixme comment above)
         player_words, opponent_words, assassin_word, bystander_words = (
             [b for b in boardwords if state[b] == Color.TEAM],

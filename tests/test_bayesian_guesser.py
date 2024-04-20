@@ -44,7 +44,7 @@ words = utils.load_word_list(file_paths.board_words_path)
 # DEFAULT VALUES
 GAMES_TO_PLAY = 50
 SEED = 2050
-CODEMASTER = BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
+CODEMASTER = BotType.W2V_BASELINE_GUESSER #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
 GUESSER = BotType.W2V_BASELINE_GUESSER
 os.environ['MKL_VERBOSE']="1"
 
@@ -52,7 +52,7 @@ def get_bot_settings(b_type):
     bot_settings = BotSettingsObj()
     bot_settings.N_ASSOCIATIONS = 500
     bot_settings.CONSTRUCTOR_PATHS = bot_paths.get_paths_for_bot(b_type)
-    bot_settings.BOT_TYPE_SM = b_type
+    bot_settings.BOT_TYPE_SM = get_lm(b_type)
     #bot_settings.LOG_FILE = file_paths.anc_log_path
 
     if len(sys.argv) > 1:
@@ -147,7 +147,7 @@ if __name__ == '__main__':
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(GUESSER)
     bot_settings.EMBEDDING_NOISE = 1.7
-    test_cm, bayes_g = obj.bot_initializer.init_bots(BotType.W2V_DISTANCE_ASSOCIATOR, BotType.BAYESIAN_GUESSER, bot_settings)
+    test_cm, bayes_g = obj.bot_initializer.init_bots(BotType.NOISY_SPYMASTER, BotType.BAYESIAN_GUESSER, bot_settings)
     _, test_g = obj.bot_initializer.init_bots(None, BotType.W2V_BASELINE_GUESSER, bot_settings)
     bot_settings = get_bot_settings(CODEMASTER)
 
@@ -184,16 +184,16 @@ if __name__ == '__main__':
             print("Round", round_) 
             random.seed(SEED + games_played*100+round_)
             np.random.seed(SEED + games_played*100+round_)
-            clue, targets = test_cm.generate_clue(key_grid.copy(), [b for b in board if b not in prev_guesses], sum(1 for w in board if w not in prev_guesses and key_grid[w] == Color.TEAM))
+            clue, targets = test_cm.generate_clue(key_grid.copy(), [b for b in board if b not in prev_guesses])
             np.random.seed(SEED + games_played*100+round_)
             random.seed(SEED + games_played*100+round_)
 
             team_c = team_words.copy()
             opp_c = opponent_words.copy()
             byst_c = byst_words.copy()
-            print("Spymaster: ", clue, get_colored_list(targets,team_words, opponent_words, byst_words, assasin))
-            guesses = bayes_g.guess_clue(clue, len(targets), prev_guesses)
-            t_g = test_g.guess_clue(clue, len(targets), prev_guesses)
+            print("Spymaster: ", clue, targets)
+            guesses = bayes_g.guess_clue(clue, targets, prev_guesses)
+            t_g = test_g.guess_clue(clue, targets, prev_guesses)
             guesses_given = []
             for i, guess in enumerate(guesses, 1):
                 guesses_given.append(guess)

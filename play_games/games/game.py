@@ -180,7 +180,6 @@ class Game:
         clue, num = self.spymaster.generate_clue(
             {self.board_words[i]: color for i, color in enumerate(self.key_grid)}, 
             [w for w in self.board_words if w not in self.previous_guesses], 
-            len(self.red_words)
         )                                                   
         self.outfile.write(f"clue: {clue}\nnum_targets: {num}\n")        
         self.clues_used.add(clue)

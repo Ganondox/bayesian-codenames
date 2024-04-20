@@ -6,6 +6,7 @@ from play_games.bots.ai_components.associator_ai_components.vector_data_cache im
 from play_games.bots.ai_components import vector_utils
 from play_games.bots.ai_components.bayesian_components import History, InternalSpymaster, WorldSampler
 from play_games.bots.bot_settings_obj import BotSettingsObj
+from play_games.bots.spymasters.spymaster import Spymaster
 from play_games.bots.types import BotType
 from play_games.games.enums import Color, GameCondition
 from scipy.stats import norm
@@ -19,7 +20,7 @@ EV = {
 
 class BayesianGuesser:
 
-    def __init__(self, team, spymasters: list[InternalSpymaster], prior, noise, samples, name):
+    def __init__(self, team, spymasters: list[Spymaster], prior, noise, samples, name):
         self.team = team
         self.spymasters = spymasters
         self.prior = np.array(list(prior.values()))
@@ -63,7 +64,7 @@ class BayesianGuesser:
         self.boardwords = boardwords
         self.current_boardwords = boardwords.copy()
         self.sampler.reset(boardwords)
-        [s.reset(boardwords) for s in self.spymasters]
+        [s.load_dict(boardwords) for s in self.spymasters]
         self.reset()
 
     def guess_clue(self, clue, num_guess, _)->list[str]:
@@ -74,12 +75,12 @@ class BayesianGuesser:
         state_posterior = np.full_like(state_likelihood, 1/self.samples)
         spymaster_likelihood = np.ones(len(self.spymasters))
 
-        for clue_t, bw_t, team_left_t in self.history:
+        for clue_t, bw_t, _ in self.history:
             if clue_t == None: continue
             for w_hash, w in enumerate(samples):
                 ptw = 0 
                 for m_i, m in enumerate(self.spymasters):
-                    l_t, _ = m.get_clue(w, bw_t, team_left_t)
+                    l_t, _ = m.generate_clue(w, bw_t)
                     if self.noise == 0:
                         pt = 1 if l_t == clue_t else 0
                     else:
@@ -90,7 +91,7 @@ class BayesianGuesser:
 
         for m_i, m in enumerate(self.spymasters):
             for w_hash, w in enumerate(samples):
-                l, _ = m.get_clue(w, self.current_boardwords, self.sampler.team_left)
+                l, _ = m.generate_clue(w, self.current_boardwords)
                 if self.noise == 0:
                     p =  1 if l == clue else 0
                 else:
@@ -111,7 +112,7 @@ class BayesianGuesser:
             state_posterior /= total
         if (total:= self.spymaster_posterior.sum()) != 0:
             self.spymaster_posterior /= total
-        
+        print("P:", p_prime)
         self.guess_iterator = GuessIterator(self, clue, num_guess, samples, state_posterior)
         return self.guess_iterator
     

@@ -2,6 +2,7 @@ from play_games.bots.ai_components.bayesian_components import LANGUAGE_MODELS, I
 from play_games.bots.bot_settings_obj import BotSettingsObj
 from play_games.bots.guessers.bayesian_guesser import BayesianGuesser
 from play_games.bots.spymasters.bayesian_spymaster import BayesianSpymaster
+from play_games.bots.spymasters.noisy_spymaster import NoisySpymaster
 from play_games.bots.types import AIType, BotType
 from play_games.games.enums import Color
 from play_games.paths import bot_paths
@@ -30,7 +31,7 @@ class BotInitializer():
                 case AIType.DISTANCE_ASSOCIATOR:
                     spymaster_bot = BotConstructorType.DISTANCE_ASSOCIATOR_AI_SPYMASTER.build()
                 case AIType.NOISY:
-                    pass
+                    spymaster_bot = NoisySpymaster(bot_settings.BOT_TYPE_SM)
                 case AIType.BAYESIAN:
                     spymaster_bot = self.initialize_bayesian_spymaster(bot_settings)
                 case _:
@@ -70,10 +71,17 @@ class BotInitializer():
         return BayesianSpymaster(team, guessers, prior, noise, samples, name)        
     
     def initialize_bayesian_guesser(self, bot_settings_obj: BotSettingsObj):
-        spymasters = [ InternalSpymaster(lm, bot_settings_obj.N_ASSOCIATIONS) for lm in LANGUAGE_MODELS ]
         team = Color.TEAM
-        prior = {g:1/len(spymasters) for g in spymasters}
         noise = 0#bot_settings_obj.EMBEDDING_NOISE #1.7 # try other values
-        samples = 10000 # try other values
+        samples = 100000 # try other values
         name = "Bayesian"
+
+        spymasters = []
+        for lm in LANGUAGE_MODELS:
+            bot_settings_obj.BOT_TYPE_SM = lm
+            bot_settings_obj.EMBEDDING_NOISE = 0
+            spymasters.append(self.init_bots(BotType.NOISY_SPYMASTER, None, bot_settings=bot_settings_obj)[0])
+
+        prior = {g:1/len(spymasters) for g in spymasters}
+
         return BayesianGuesser(team, spymasters, prior, noise, samples, name)  

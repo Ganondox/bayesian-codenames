@@ -58,94 +58,28 @@ def load_words(file_name: str) -> list[str]:
     with open(file_name, "r") as f:
         lines = [line.rstrip() for line in f]
     return lines
-exceptions = ('lock', 'king', 'table')
-add_ins = {
-    'suit': ('lawsuit',), 
-    'fan': ('fandom',), 
-    "comic": ('comedy', "comedian"),
-    "capital": ("capitol"),
-    "cross": ('across',),
-    "cycle": ("bicycle", "tricycle", "cyclist"),
-    "tie": ("necktie", "untie"),
-    "fighter": ("fighting", "fight"),
-    "rose": ("raised", "raise", "raising"),
-    "cast": ("outcast",),
-    "head": ("airhead",),
-    "giant": ("gigantic",),
-    "charge": ("discharge",),
-    "jack": ("hijack",),
-    "bug": ("bugle", "buggy"),
-    "fire": ("bonfire",),
-    "gas": ("gasoline",),
-    "luck": ("unlucky",),
-    "shadow": ("shade",),
-    "round": ("around",),
-    "ham": ("hamper", "hamster", "hammock", "hem"),
-    "pan": ("pant", "pane", "pancake", "pantyhose", "dustpan", "saucepan"),
-    "cap": ("capitulate",),
-    "washer": ("wash","washcloth", "washing"),
-    "death": ("dying", "dead", "die",),
-    "nail": ("toenail",),
-    "snowman": ("snow", "weatherman", "woodsman", "snowboard", "snowball", "milkman", "fireman", "mailman", "caveman", "handyman", "hangman", "postman", "repairman", "tradesman", "man",),
-    "fan": ("fandom", "fanatic","fanfare"),
-    "piano": ("pianist",),
-    "racket": ("rack", "racquet "),
-    "cat": ("catwalk", "cataract", "catapult", "categorize", "copycat"),
-    "pirate": ("piracy",),
-    "row": ("rowdy",),
-    "ray": ("stingray",),
-    "ice": ("iceberg", "icebox", "icy"),
-    "fly": ("dragonfly", "horsefly", "firefly", "flight", "flighty", "housefly",),
-    "car": ("caribou", "carnivore"),
-    "box": ("letterbox", "inbox", "mailbox", "icebox"),
-    "lab": ("laboratory",),
-    "air": ("airy", "airhead", "airless", "aircraft",),
-    "bar": ("barf", "barmaid", "bartender"),
-    "mug": ("muggy",),
-    "king": ("kingly",),
-    "nut": ("nutty", "nutmeg", "nutcracker", "hazelnut", "walnut", "peanut"),
-    "oil": ("oily",),
-    "mount": ("surmount",),
-    "pipe": ("bagpipe",),
-    "point": ("pinpoint",),
-    "tap": ("tapioca",),
-    "fall": ("fell",),
-    "port": ("airport",),
-    "scientist": ("science", "scientific"),
-    "circle":("circular",),
-    "table": ("tablecloth", "tablespoon"),
-    "pit": ("pitiful", "pituitary"),
-    "ruler": ("ruling",),
-    "wake": ("awake", "awaken"),
-}
-exceptions = ('lock', 'king', 'table')
-add_ins = {'suit': ('lawsuit',), 'fan': ('fandom',), "comic": ('comedy',)}
+
 def gen_association(dist_dict: embeddings, board_word: list[str],n=300, verbose=False) -> dict[str, list[str]]:
-    temp_associations = []
-    skipped_words = {}
     ret_dict = dict()
+    __cache = {}
     for i, word in enumerate(board_word, start=1):
-        for key in dist_dict.keys():
-            if(key == word) or are_words_connected(word, key, word in exceptions) or key in add_ins.get(word, tuple()):
-                if(key != word):
-                    skipped_words.setdefault(word, []).append(key)
-                    print(f"{word} : {key}") 
+        temp_associations = []
+        for key in dist_dict:
+            if(key == word): 
                 continue
-            
-            pair = (key, dist.cosine(dist_dict[word], dist_dict[key]))
-            #ind = bin_search(pair, temp_associations)
+
+            bob  = (key, word) if key < word else (word, key)
+
+            if bob not in __cache:
+                    
+            pair = (key, dist.euclidean(dist_dict[word], dist_dict[key]))
             bisect.insort(temp_associations, pair, key=lambda x:x[1])
-            #temp_associations.insert(ind, pair)
-            
             if(len(temp_associations) > n): del temp_associations[n:] #trim to 300
 
         ret_dict[word] = [pair[0] for pair in temp_associations]
         del temp_associations[:] # clear
 
-        #if verbose: print(f"{i}/{len(board_word)}", end='\r')
-
-    # with open("common.json", 'w') as f:
-    #     dump(skipped_words, f)
+        if verbose: print(f"{i}/{len(board_word)}", end='\r')
     return ret_dict
 
 
