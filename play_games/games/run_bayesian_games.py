@@ -36,7 +36,7 @@ class RunBayesianGames:
         bot_settings = bot_settings_obj.get_bot_settings(self.object_manager.experiment_settings)
         bot_settings.LOG_FILE = self.object_manager.file_manager.ROUND_LOG_FILE
         bot_settings.LEARN_LOG_FILE_CM = self.object_manager.file_manager.LEARN_LOG_FILE_CM
-
+        bot_settings.LEARN_LOG_FILE_G = self.object_manager.file_manager.LEARN_LOG_FILE_G
         return bot_settings
 
 

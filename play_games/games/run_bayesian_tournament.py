@@ -46,6 +46,7 @@ class RunBayesianTournament:
         #Get needed information from the experiment_settings.py file
         self.file_manager.open_round_file(0)
         self.file_manager.open_learn_cm_file(0)
+        self.file_manager.open_learn_g_file(0)
         
         spymasters = self.exp_settings.spymasters
         guessers = self.exp_settings.guessers
@@ -59,4 +60,5 @@ class RunBayesianTournament:
                 self.run_games.run_n_games(int(n), b1, b2, noise_cm, noise_g, seed=seed)
         
         self.file_manager.close_learn_cm_file()
+        self.file_manager.close_learn_g_file()
         self.file_manager.close_round_file()

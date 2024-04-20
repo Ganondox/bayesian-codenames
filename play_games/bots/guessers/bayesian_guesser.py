@@ -38,7 +38,7 @@ class BayesianGuesser:
 
     def initialize(self, bot_settings: BotSettingsObj):
         self.verbose_print = bot_settings.PRINT_LEARNING
-        self.log_file = bot_settings.LEARN_LOG_FILE_CM
+        self.log_file = bot_settings.LEARN_LOG_FILE_G
         self.log = self.log_file.write if self.log_file else (lambda *a, **kw: None)
 
         self.log(
