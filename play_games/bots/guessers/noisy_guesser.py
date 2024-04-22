@@ -16,7 +16,7 @@ class NoisyGuesser(Guesser):
         else:
             self.vectors = VectorDataCache(bot_settings_obj.CONSTRUCTOR_PATHS)
         
-        self.std = bot_settings_obj.EMBEDDING_NOISE
+        self.std = bot_settings_obj.NOISE_G
             
     def guess_clue(self, clue, num_guess, prev_guesses):
         board_words = [w for w in self.board_words if w not in prev_guesses]

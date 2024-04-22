@@ -44,16 +44,18 @@ words = utils.load_word_list(file_paths.board_words_path)
 # DEFAULT VALUES
 GAMES_TO_PLAY = 50
 SEED = 2050
-CODEMASTER = BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
-GUESSER = BotType.CN_NB_BASELINE_GUESSER
+CODEMASTER = BotType.FAST_TEXT_DISTANCE_ASSOCIATOR #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
+GUESSER = BotType.FAST_TEXT_BASELINE_GUESSER
 os.environ['MKL_VERBOSE']="1"
 
 def get_bot_settings(b_type):
     bot_settings = BotSettingsObj()
-    bot_settings.N_ASSOCIATIONS = 300
+    bot_settings.N_ASSOCIATIONS = 500
     bot_settings.CONSTRUCTOR_PATHS = bot_paths.get_paths_for_bot(b_type)
-    bot_settings.BOT_TYPE_SM = b_type
+    bot_settings.BOT_TYPE_SM = get_lm(b_type)
     bot_settings.SAMPLE_SIZE_SM = 10
+    bot_settings.SAMPLE_SIZE_G = 1000
+    bot_settings.NOISE_G = 0
     bot_settings.PRINT_LEARNING = True
     #bot_settings.LOG_FILE = file_paths.anc_log_path
 
@@ -97,16 +99,16 @@ def get_bot_settings(b_type):
     return bot_settings
 
 def get_random_board():
-
     board = random.sample(words, 25)
     colors = [Color.TEAM] * 9 + [Color.OPPONENT] * 8 + [Color.BYSTANDER] * 7 + [Color.ASSASSIN]
     key_grid = dict(zip(board ,colors))
+    
     team_words = board[:9]
     opponent_words = board[9:17]
     byst_words = board[17:24]
     assasin = board[24]
     random.shuffle(board)
-
+    
     return team_words, opponent_words, byst_words, assasin, board, key_grid
 
 def print_board(team_words, opponent_words, byst_words, assasin, board):
@@ -145,24 +147,15 @@ if __name__ == '__main__':
 
     os.environ["CODENAMES_DEBUG"] = 'True'
 
-    # Moved to top of the file
-    #CODEMASTER = BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
-    #GUESSER = BotType.W2V_GLOVE_BASELINE_GUESSER
-
-    # Moved to top of the file
-    # GAMES_TO_PLAY = 1
-    # SEED = 20    
-
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(GUESSER)
     bot_settings.NOISE_SM = 0
-    bot_settings.NOISE_G = 0
-    bayes, test_g = obj.bot_initializer.init_bots(BotType.BAYESIAN_SPYMASTER, BotType.NOISY_GUESSER, bot_settings)
-
+    test_cm, bayes_g = obj.bot_initializer.init_bots(BotType.NOISY_SPYMASTER, BotType.BAYESIAN_GUESSER, bot_settings)
+    _, test_g = obj.bot_initializer.init_bots(None, BotType.W2V_BASELINE_GUESSER, bot_settings)
     bot_settings = get_bot_settings(CODEMASTER)
 
-    bot_settings.NOISE_SM = 0.4
+    bot_settings.NOISE_SM = 1.6
     # bot_settings.SAMPLE_SIZE = 10
     #bot_settings = get_bot_settings(CODEMASTER)
 
@@ -174,32 +167,40 @@ if __name__ == '__main__':
     while(games_played < GAMES_TO_PLAY):
         t_game_start = time.time()
         random.seed(SEED + games_played)
+        np.random.seed(SEED + games_played)
         print(f"_______________________ Game {games_played+1} ____________________________")
         team_words, opponent_words, byst_words, assasin, board, key_grid = get_random_board()
         print_board(team_words, opponent_words, byst_words, assasin, board)
 
-        bayes.load_dict(board)
+        test_cm.load_dict(board)
+        bayes_g.load_dict(board)
         test_g.load_dict(board)
         
         prev_guesses=[]
         state = GameState.ROUND_END
         round_ = 1
+
+        bot1_stats = [0,0,0,0]
+        bot2_stats = [0,0,0,0]
         
         while(state == GameState.ROUND_END):
             color = Color.TEAM
             print("Round", round_) 
             random.seed(SEED + games_played*100+round_)
             np.random.seed(SEED + games_played*100+round_)
-            clue, targets = bayes.generate_clue(key_grid.copy(), [b for b in board if b not in prev_guesses])
+            clue, targets = test_cm.generate_clue(key_grid.copy(), [b for b in board if b not in prev_guesses])
             np.random.seed(SEED + games_played*100+round_)
             random.seed(SEED + games_played*100+round_)
 
-
-            print("ANC: ", clue, targets)
-            guesses = test_g.guess_clue(clue, targets, prev_guesses)
-            print("GUESSER: ", get_colored_list(guesses, team_words, opponent_words, byst_words, assasin))
+            team_c = team_words.copy()
+            opp_c = opponent_words.copy()
+            byst_c = byst_words.copy()
+            print("Spymaster: ", clue, targets)
+            guesses = bayes_g.guess_clue(clue, targets, prev_guesses)
+            t_g = test_g.guess_clue(clue, targets, prev_guesses)
+            guesses_given = []
             for i, guess in enumerate(guesses, 1):
-                
+                guesses_given.append(guess)
                 if guess in team_words:
                     color = Color.TEAM
                     team_words.remove(guess)
@@ -213,10 +214,14 @@ if __name__ == '__main__':
                     color = Color.ASSASSIN
                 prev_guesses.append(guess)
                 
-                bayes.give_feedback(guess, color, 0)
+                test_cm.give_feedback(guess, color, 0)
+                bayes_g.give_feedback(guess, color, 0)
                 print("  ", guess, ":", color)
                 if color != Color.TEAM:
                     break
+            print("GUESSER: ", get_colored_list(guesses_given, team_c, opp_c, byst_c, assasin))
+            print("Test: ", get_colored_list(t_g, team_c, opp_c, byst_c, assasin))
+
             round_+=1
             if color == Color.ASSASSIN or len([v for v in opponent_words if v not in prev_guesses]) == 0:
                 state = GameState.LOSE

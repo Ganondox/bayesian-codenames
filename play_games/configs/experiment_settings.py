@@ -37,7 +37,11 @@ class ExperimentSettings:
 
     #parameter experiment settings
     n_associations: int
-    noise_parameters: float | None
+    noise_sm: float | None
+    noise_g: float | None
+
+    sample_size_sm: int
+    sample_size_g: int
 
     #don't touch this
     variable_space: list[float | int] | None
@@ -48,7 +52,7 @@ class ExperimentSettings:
 
     n_games: int
     board_size: int
-    seed = float | int | str 
+    seed: float | int | str 
     spymasters: list[BotType]
     guessers: list[BotType]
 
@@ -73,7 +77,11 @@ class ExperimentSettings:
         self.print_learning = read_boolean(config_section, ConfigKeys.PRINT_LEARNING, fallback=False)
 
         self.n_associations = read_int(config_section, ConfigKeys.N_ASSOCIATIONS, fallback=300)
-        self.noise_parameters = read_float(config_section, ConfigKeys.NOISE_PARAMETERS, fallback=0.1)
+        self.noise_sm = read_float(config_section, ConfigKeys.SPYMASTER_NOISE, fallback=0.1)
+        self.noise_g = read_float(config_section, ConfigKeys.GUESSER_NOISE, fallback=0.1)
+
+        self.sample_size_sm = read_int(config_section, ConfigKeys.SPYMASTER_SAMPLE_SIZE, fallback=1)
+        self.sample_size_g = read_int(config_section, ConfigKeys.GUESSER_SAMPLE_SIZE, fallback=1)
 
         self.iteration_range = read_list(int, config_section, ConfigKeys.ITERATION_RANGE, accept_null=True, fallback=None)
         self.include_same_lm = read_boolean(config_section, ConfigKeys.INCLUDE_SAME_LM, fallback=True)

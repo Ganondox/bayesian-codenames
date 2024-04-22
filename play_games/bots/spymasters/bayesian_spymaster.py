@@ -97,7 +97,7 @@ class BayesianSpymaster:
                 case _ if guess_color == Color.opponent(self.team):
                     value-=1
                 case Color.BYSTANDER:
-                    pass
+                    value-=0.5
                 case Color.ASSASSIN:
                     value-=9
 
@@ -119,17 +119,13 @@ class BayesianSpymaster:
 
         return guess_words, guess_dists
     
-    def get_possible_clues(self, player_words):
-        results = set()
-
+    def get_possible_clues(self, boardwords):
+        possible_clue_words = set()
         for guesser in self.guessers:
-            for word in player_words:
-                results.update(guesser.associations[word])
-        
-        return results
-        
+            possible_clue_words.update(*[guesser.associations[w] for w in boardwords])
+        return list(possible_clue_words)    
 
-    def generate_clue(self, player_words, prev_guesses, opponent_words, assassin_word, bystander_words)->tuple[str, list[str]]:
+    def generate_clue(self, card_teams, boardwords)->tuple[str, list[str]]:
          # We try all clues on the guesser we were given, sampled multiple times to account for noise
         # Whichever one gives the highest expected value is the one we should go for
         # Break ties by minimum average distance to guessed correct clues
@@ -138,18 +134,10 @@ class BayesianSpymaster:
         # - card_teams are the teams for each card
         # - game_log has all the history for this game
 
-        boardwords = self.current_boardwords
         self.previous_guesses = self.current_guesses
         self.current_guesses = []
 
-        card_teams = {}
-        for word in player_words:
-            card_teams[word] = Color.team(self.team)
-        for word in opponent_words:
-            card_teams[word] = Color.opponent(self.team)
-        for word in bystander_words:
-            card_teams[word] = Color.BYSTANDER
-        card_teams[assassin_word] = Color.ASSASSIN
+        player_words = [w for w in boardwords if card_teams[w] == Color.TEAM]
 
         #update posterior beliefs based on last guess
         if len(self.previous_guesses) > 0:
@@ -185,7 +173,6 @@ class BayesianSpymaster:
 
         temporary_likelihood = {g:{} for g in self.guessers}    
         
-        my_cards_left = len(player_words)
         possible_clue_words = self.get_possible_clues(player_words)
         for i, clue_word in enumerate(possible_clue_words, 1):
             if self.verbose_print and i%50==0: print(
@@ -193,7 +180,7 @@ class BayesianSpymaster:
                 f" {i} / {len(possible_clue_words)}", 
                 end='\r'
             )
-            for cur_clue_num in range(1, my_cards_left + 1):
+            for cur_clue_num in range(1, len(player_words) + 1):
                 ev = 0
                 cur_clue_distance = 0
                 #semiconverstive optimization - only try clues that are "good" for at least one guesser, otherwise break num
@@ -222,8 +209,7 @@ class BayesianSpymaster:
                         # See how good this guess is
                         # Value = estimated marginal contribution to score at end of game
                         # Cur distance = average distance to the correctly guessed cards
-                        value, cur_clue_distance = self.evaluateGuess2(guess_words, guess_dists, card_teams)
-                        cur_clue_distance = sum(guesser.vectors.distance_word(clue_word, w) for w in boardwords)
+                        value, _ = self.evaluateGuess2(guess_words, guess_dists, card_teams)
                         # doesn't depend on noise
                         ev += value * self.posterior[guesser]
 
@@ -234,6 +220,14 @@ class BayesianSpymaster:
                         else:
                             temporary_likelihood[guesser][clueHash][num] = 2 #estimated assuming uniform dirilect prior
 
+                mode_model = max(self.guessers, key=self.posterior.__getitem__)
+                cur_clue_distance = sum(
+                    d
+                    for d in sorted(
+                        mode_model.vectors.distance_word(clue_word, w)
+                        for w in player_words
+                    )[:cur_clue_num]
+                ) / cur_clue_num
 
                 # This is better than the best clue by clue val
                 if best_clue_word is None or ev > best_clue_val:
@@ -251,11 +245,10 @@ class BayesianSpymaster:
 
                 self.likelihood = {g:temporary_likelihood[g][(best_clue_word, best_clue_num)] for g in self.guessers}
         if self.verbose_print: print()
-        return (best_clue_word, ['target']*best_clue_num)
+        return (best_clue_word, best_clue_num)
     
     def give_feedback(self, guess: str, *_):
         self.current_guesses.append(guess)
-        self.current_boardwords.remove(guess)
 
     def __desc__(self):
         return f"{BotType.BAYESIAN_SPYMASTER}:{self.noise}"

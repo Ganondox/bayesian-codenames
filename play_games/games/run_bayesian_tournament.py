@@ -2,7 +2,8 @@ import itertools
 import os
 
 import numpy as np
-from play_games.bots.types import BotType
+from play_games.bots.types import AIType, BotType
+from play_games.bots.types.bot_to_ai import get_ai
 from play_games.configs.experiment_settings import ExperimentSettings
 from play_games.files.file_manager import FileManager
 from play_games.utils import utils
@@ -46,17 +47,24 @@ class RunBayesianTournament:
         #Get needed information from the experiment_settings.py file
         self.file_manager.open_round_file(0)
         self.file_manager.open_learn_cm_file(0)
+        self.file_manager.open_learn_g_file(0)
         
         spymasters = self.exp_settings.spymasters
         guessers = self.exp_settings.guessers
         n = self.exp_settings.n_games 
         
         for b1, b2 in itertools.product(spymasters, guessers):
-            noises_cm = (0,) if b1 != BotType.BAYESIAN_SPYMASTER else np.linspace(0, 50, 6)
-            noises_g = np.linspace(0, 50, 6)
+            noises_cm = np.linspace(0, 2, 5)
+            noises_g = np.linspace(0, 2, 5)
+            bayes_g = ((0, 1), (1, 0), (0.5, 0.5))
             for noise_cm, noise_g in itertools.product(noises_cm, noises_g):
-                    utils.cond_print(f'Simulating {n} games with {b1} and {b2} with noise {noise_cm}', self.exp_settings.verbose_flag)
-                    self.run_games.run_n_games(int(n), b1, b2, noise_cm, noise_g, seed=seed)
-        
+                if get_ai(b2) == AIType.BAYESIAN:
+                    for th in bayes_g:
+                        utils.cond_print(f'Simulating {n} games with {b1} and {b2} with noise {noise_cm} and {noise_g} and {th}', self.exp_settings.verbose_flag)
+                        self.run_games.run_n_games(int(n), b1, b2, noise_cm, noise_g, th, seed=seed)
+                else:
+                    utils.cond_print(f'Simulating {n} games with {b1} and {b2} with noise {noise_cm} and {noise_g}', self.exp_settings.verbose_flag)
+                    self.run_games.run_n_games(int(n), b1, b2, noise_cm, noise_g, (), seed=seed)
         self.file_manager.close_learn_cm_file()
+        self.file_manager.close_learn_g_file()
         self.file_manager.close_round_file()

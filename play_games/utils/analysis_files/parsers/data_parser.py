@@ -23,8 +23,8 @@ class DataParser:
         #If it is a learning experiment, then we need to parse the learn logs as well
         if len(learn_logs_cm) != 0:
             parsed_learn_log_data_cm = self.learn_log_parser.run_parser(learn_logs_cm)
-        if len(learn_logs_g) != 0:
-            parsed_learn_log_data_g = self.learn_log_parser.run_parser(learn_logs_g)
+        # if len(learn_logs_g) != 0:
+        #     parsed_learn_log_data_g = self.learn_log_parser.run_parser(learn_logs_g)
 
         #Save the data
         final_dict = {}
@@ -34,9 +34,9 @@ class DataParser:
                 if len(learn_logs_cm) != 0:
                     llcm_dict = parsed_learn_log_data_cm[counter]
                     self.merge_data(merged_dict, llcm_dict, Types.CM)
-                if len(learn_logs_g) != 0:
-                    llg_dict = parsed_learn_log_data_g[counter]
-                    self.merge_data(merged_dict, llg_dict, Types.G)
+                # if len(learn_logs_g) != 0:
+                #     llg_dict = parsed_learn_log_data_g[counter]
+                #     self.merge_data(merged_dict, llg_dict, Types.G)
 
                 final_dict[counter] = merged_dict
 

@@ -1,7 +1,8 @@
 import random
 
 from play_games.bots import bot_settings_obj
-from play_games.bots.types import BotType
+from play_games.bots.types import AIType, BotType
+from play_games.bots.types.bot_to_ai import get_ai
 from play_games.bots.types.bot_to_lm import get_lm
 from play_games.utils.object_manager import ObjectManager 
 
@@ -35,20 +36,31 @@ class RunBayesianGames:
         bot_settings = bot_settings_obj.get_bot_settings(self.object_manager.experiment_settings)
         bot_settings.LOG_FILE = self.object_manager.file_manager.ROUND_LOG_FILE
         bot_settings.LEARN_LOG_FILE_CM = self.object_manager.file_manager.LEARN_LOG_FILE_CM
-
+        bot_settings.LEARN_LOG_FILE_G = self.object_manager.file_manager.LEARN_LOG_FILE_G
         return bot_settings
 
 
-    def run_n_games(self, n, bot_type_1, bot_type_2, noise_cm, noise_g, seed=0):
+    def run_n_games(self, n, bot_type_1, bot_type_2, noise_cm, noise_g, th, seed=0):
         #Create the settings object to pass into the bots
         bot_settings = self.get_bot_settings()
         bot_settings.LEARN_LOG_FILE_CM.write("STARTING TO LEARN\n")
-        # init bots
-        bot_settings.EMBEDDING_NOISE = noise_cm
-        codemaster_bot, _ = self.object_manager.bot_initializer.init_bots(bot_type_1, None, bot_settings)
-        bot_settings.EMBEDDING_NOISE = noise_g
-        bot_settings.BOT_TYPE_G = get_lm(bot_type_2)
-        _, guesser_bot = self.object_manager.bot_initializer.init_bots(None, BotType.NOISY_GUESSER, bot_settings)
+        
+        ### SPYMASTER
+        bot_settings.NOISE_SM = noise_cm
+        if get_ai(bot_type_1) == AIType.BAYESIAN:
+            codemaster_bot, _ = self.object_manager.bot_initializer.init_bots(bot_type_1, None, bot_settings)
+        else:
+            bot_settings.BOT_TYPE_SM = get_lm(bot_type_1)
+            codemaster_bot, _ = self.object_manager.bot_initializer.init_bots(BotType.NOISY_SPYMASTER, None, bot_settings)
+        
+        ### GUESSER
+        bot_settings.NOISE_G = noise_g
+        if get_ai(bot_type_2) == AIType.BAYESIAN:
+            bot_settings.SKIP_THRESHOLD, bot_settings.GUESS_THRESHOLD = th
+            _, guesser_bot = self.object_manager.bot_initializer.init_bots(None, bot_type_2, bot_settings)
+        else:
+            bot_settings.BOT_TYPE_G = get_lm(bot_type_2)
+            _, guesser_bot = self.object_manager.bot_initializer.init_bots(None, BotType.NOISY_GUESSER, bot_settings)
 
         # load codenames words
         codenames_words = self.load_words()

@@ -36,6 +36,7 @@ class BotType(StrEnum):
 
     BAYESIAN_SPYMASTER = "bayesian spymaster"
     BAYESIAN_GUESSER = "bayesian guesser"
+    NOISY_SPYMASTER = "noisy spymaster"
     NOISY_GUESSER = "noisy guesser"
 
     @property

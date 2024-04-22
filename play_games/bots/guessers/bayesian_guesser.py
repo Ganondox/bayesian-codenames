@@ -1,46 +1,46 @@
+import bisect
 import json
 from matplotlib import pyplot as plt
 import numpy as np
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
 from play_games.bots.ai_components import vector_utils
-from play_games.bots.ai_components.bayesian_components import ClueHistory, InternalSpymaster, WorldSampler
+from play_games.bots.ai_components.bayesian_components import History, WorldSampler
 from play_games.bots.bot_settings_obj import BotSettingsObj
+from play_games.bots.spymasters.spymaster import Spymaster
 from play_games.bots.types import BotType
 from play_games.games.enums import Color, GameCondition
+from scipy.stats import norm
+
+EV = {
+    Color.TEAM: 1,
+    Color.OPPONENT: -1,
+    Color.BYSTANDER: -0.5 ,
+    Color.ASSASSIN: -9,
+}
 
 class BayesianGuesser:
-    def __init__(self, team, spymasters: list[InternalSpymaster], prior, noise, samples, name):
+
+    def __init__(self, team, spymasters: list[Spymaster], prior, noise, samples, name):
         self.team = team
         self.spymasters = spymasters
-        self.prior = prior
+        self.prior = np.array(list(prior.values()))
         self.noise = noise
         self.samples = samples
-        self.guess_threshold = 1
-        self.skip_threshold = 1
         self.name = name
-        self.current_guesses = []
-        self.previous_guesses = []
+        self.guesses_given = []
 
         self.sampler = WorldSampler()
-        self.history = ClueHistory()
-        self.posterior = prior.copy()
-        self.spymaster_likelihood = {}
-        self.state_likelihood = {}
-
-        for g in spymasters:
-            self.spymaster_likelihood[g] = {}
-        
-
-    def reset(self):
-       self.previous_guesses = []
-       self.current_guesses = []
-       self.posterior = self.prior.copy()
-       self.history.reset()
+        self.history = History()
+        self.spymaster_posterior = self.prior.copy() # P(m)
+        self.guess_iterator = None
 
     def initialize(self, bot_settings: BotSettingsObj):
         self.verbose_print = bot_settings.PRINT_LEARNING
-        self.log_file = bot_settings.LEARN_LOG_FILE_CM
+        self.log_file = bot_settings.LEARN_LOG_FILE_G
         self.log = self.log_file.write if self.log_file else (lambda *a, **kw: None)
+        
+        self.guess_threshold = 1 if bot_settings.GUESS_THRESHOLD is None else bot_settings.GUESS_THRESHOLD
+        self.skip_threshold = 0 if bot_settings.SKIP_THRESHOLD is None else bot_settings.SKIP_THRESHOLD
 
         self.log(
             f"GUESSER: {self.__desc__()}\n"
@@ -56,109 +56,165 @@ class BayesianGuesser:
         self.boardwords = boardwords
         self.current_boardwords = boardwords.copy()
         self.sampler.reset(boardwords)
-        self.reset()
+        [s.load_dict(boardwords) for s in self.spymasters]
+        self.guesses_given = []
+        self.spymaster_posterior = self.prior.copy()
+        self.history.reset()
 
-    def guess_clue(self, clue, num_guess, prev_guesses)->list[str]:
-        self.history.record((clue, num_guess))
-        #TODO: does this go after or before?
+    def guess_clue(self, clue, num_guess, _)->list[str]:
+        if self.verbose_print: print(dict(zip(self.spymasters, self.spymaster_posterior)))
+        p_prime = 0 # liklihood of observed clue
+        samples = self.sampler.sample_states(self.samples)
+        state_likelihood = np.ones(len(samples)) # p(w)
+        state_posterior = np.full_like(state_likelihood, 1/self.samples)
+        spymaster_likelihood = np.ones(len(self.spymasters))
 
-        p_prime = 0
-        samples = self.sampler.sample_states(100)
-        sample_hashes = [self.hash_state(s) for s in samples]
+        for clue_t, bw_t, _ in self.history:
+            if clue_t == None: continue
+            for w_hash, w in enumerate(samples):
+                ptw = 0
+                for m_i, m in enumerate(self.spymasters):
+                    l_t, _ = m.generate_clue(w, bw_t)
+                    if self.noise == 0:
+                        pt = 1 if l_t == clue_t else 0
+                    else:
+                        z = (m.vectors[clue_t] - m.vectors[l_t])/self.noise
+                        z[z>0]*=-1
+                        densities = np.log(2) + norm.logcdf(z)
+                        pt = np.exp(np.sum(densities)) # This would be replaced with a more accurate Voronoi based thingy
+                    ptw += pt * self.spymaster_posterior[m_i]
+                state_likelihood[w_hash] *= ptw
+            state_posterior*=state_likelihood
 
-        for sample in sample_hashes:
-            self.state_likelihood[sample] = 1
+        for m_i, m in enumerate(self.spymasters):
+            for w_hash, w in enumerate(samples):
+                l, _ = m.generate_clue(w, self.current_boardwords)
+                if self.noise == 0:
+                    p =  1 if l == clue else 0
+                else:
+                    z = (m.vectors[clue] - m.vectors[l])/self.noise
+                    z[z>0]*=-1
+                    densities = np.log(2) + norm.logcdf(z)
+                    p = np.sum(densities) # This would be replaced with a more accurate Voronoi based thingy
+                    p = np.exp(p)
+           
+                spymaster_likelihood[m_i] += p * state_posterior[w_hash] 
+                state_likelihood[w_hash] += p * self.spymaster_posterior[m_i]
+                p_prime += p * state_posterior[w_hash] * self.spymaster_posterior[m_i]
 
-        for turn, clue_t in enumerate(self.history):
-            if clue == None: continue #??
+        self.log(f"P': {p_prime}\n")
+        if self.verbose_print: print("P", p_prime)
+        if p_prime == 0:
+            self.history.record(None)
+            if self.verbose_print: print("SKIPPED UPDATE")
+        else:
+            self.spymaster_posterior *= spymaster_likelihood
+            state_posterior *= state_likelihood
+            self.history.record(clue, self.current_boardwords.copy(), self.sampler.team_left)
 
-            for w_hash, w in zip(sample_hashes, samples):
-                ptw = 0 # TODO: I think this is wrong
-                for m in self.spymasters:
-                    mt = m.previous(turn)
-                    lt = mt.get_clue(w)
-                    pt = None, (clue_t, lt) # WIZARDRY!
-
-                    ptw += pt*self.spymaster_likelihood[m] # TODO: What is this?
-                self.state_likelihood[w_hash] *= ptw
-        
-        # TODO: Finish the rest, get internal spymaster working
-        
-        return []
+        if (total:= state_posterior.sum()) != 0:
+            state_posterior /= total
+        if (total:= self.spymaster_posterior.sum()) != 0:
+            self.spymaster_posterior /= total
+        self.log(
+            f"State Posterior: {state_posterior}\n"
+            f"Spymaster Posterior: {self.spymaster_posterior}\n"
+        )
+        self.guess_iterator = GuessIterator(self, clue, num_guess, samples, state_posterior)
+        return self.guess_iterator
     
     def give_feedback(self, guess: str, color: Color, status: GameCondition):
-        self.current_guesses.append(guess)
         self.current_boardwords.remove(guess)
+        self.guess_iterator.feedback(guess, color)
+        self.guesses_given.append((guess, color))
+
+        if len(self.guesses_given) == self.guess_iterator.num_guess or color != Color.team(self.team):
+            self.sampler.update_state(*zip(*self.guesses_given))
+            self.guesses_given.clear()
 
     def __desc__(self):
-        return f"{BotType.BAYESIAN_GUESSER}:{self.noise}"
+        return f"{BotType.BAYESIAN_GUESSER}:{self.noise}:{self.skip_threshold}:{self.guess_threshold}"
     
-    def hash_state(self, state, radix=25):
-        '''This relies on the order of the boardwords staying constant, so don't change boardwords'''
-        num = 0
-        exponent = 0
-        for c in map(state.__getitem__, self.boardwords):
-            num += (c+1) * radix ** exponent
-            exponent += 1
-        return num
+class GuessIterator:
+    def __init__(self, guesser: BayesianGuesser, clue, num_guess, samples, state_posterior):
+        self.guesser = guesser
+        self.clue = clue
+        self.num_guess = num_guess
+        self.samples = samples
+        self.state_posterior = state_posterior
+        self.pr = {}
+        self.pb = {}
+        self.py = {}
+        self.pa = {}
 
-    def toNum(self, guesses, length):
-        radix = length
-        num = 0
-        exponent = 0
-        for g in guesses:
-            num += hash(g) * radix ** exponent
-            exponent += 1
-        return num
-    
-    def hashClue(self, clue_word, clue_num):
-        return hash(clue_word) + clue_num
-    
-    def evaluateGuess(self, guesses, distances_from_clue, card_teams):
-        #Evaluate this guess (list of guesses) from the standpoint of team
-        # - guessed is the list of previously guessed cards in the game
-        # - card_teams is the list of which card is assigned which team
-        # - clue is the current clue that was given (clue_value, clue_number)
-        # - guess is the guess that we are evaluating
-        # - team is the team for which we are evaluating the clue
 
-        if len(guesses) == 0 or card_teams[guesses[-1]] != self.team:
-            return False, 0
+    def feedback(self, guess: str, color: Color):
+        if self._get_p_color(color)[guess] == 0:
+            if self.guesser.verbose_print: print("CLEARED BELEIFES")
+            self.guesser.spymaster_posterior = self.guesser.prior.copy()
+        for i in range(len(self.samples)):
+            if self.samples[i] and self.samples[i][guess] != color:
+                self.samples[i] = None
 
-        return True, np.average(distances_from_clue)
+    def _get_p_color(self, color):
+        match color:
+            case _ if color == Color.team(self.guesser.team): return self.pr
+            case _ if color == Color.opponent(self.guesser.team): return self.pb
+            case Color.BYSTANDER: return self.py
+            case Color.ASSASSIN: return self.pa
 
-    def evaluateGuess2(self, guesses, distances_from_clue, card_teams):
-        # Evaluate this guess (list of guesses) from the standpoint of team
-        # - guessed is the list of previously guessed cards in the game
-        # - card_teams is the list of which card is assigned which team
-        # - clue is the current clue that was given (clue_value, clue_number)
-        # - guess is the guess that we are evaluating
-        # - team is the team for which we are evaluating the clue
-        
-        if len(guesses) == 0:
-            # print("Evaluating 0 Length Guess")
-            return False, 0
+    def __iter__(self):
+        num_guesses_given = 0
+        best_spymaster = np.argmax(self.guesser.spymaster_posterior)
+        best_spymaster = self.guesser.spymasters[best_spymaster]
+        self.guesser.log(f"SM selected: {best_spymaster}\n")
 
-        value = -1
-        for guess_color in map(card_teams.__getitem__, guesses):
-            # If this card isn't our team's, or this card already guessed, then fail
-            match guess_color:
-                case _ if guess_color == Color.team(self.team):
-                    value+=1
-                case _ if guess_color == Color.opponent(self.team):
-                    value-=1
-                case Color.BYSTANDER:
-                    pass
-                case Color.ASSASSIN:
-                    value-=9
+        while num_guesses_given <= self.num_guess:
+            if self.guesser.sampler.team_left == 0: break
+            empty = {w:0 for w in self.guesser.current_boardwords}
+            self.pr.update(empty)
+            self.pb.update(empty)
+            self.py.update(empty)
+            self.pa.update(empty)
 
-        return value, np.average(distances_from_clue)
-    
-    def get_possible_clues(self, player_words):
-        results = set()
+            sorted_cards = sorted(
+                self.guesser.current_boardwords, 
+                key=lambda x:best_spymaster.vectors.distance_word(self.clue, x)
+            )
 
-        for guesser in self.spymasters:
-            for word in player_words:
-                results.update(guesser.associations[word])
-        
-        return results
+            closest_cards = []
+            for c in sorted_cards:
+                for w_hash, w in enumerate(self.samples):
+                    if w is None: continue
+                    color = w[c]
+                    pc = self._get_p_color(color)
+                    pc[c] += self.state_posterior[w_hash]
+                
+                if self.pr[c] > self.guesser.skip_threshold and len(closest_cards) < self.num_guess-num_guesses_given:
+                    closest_cards.append(c)
+                # if self.pr[c] >= self.guesser.guess_threshold:
+                #     self.pr[c], self.pb[c], self.py[c], self.pa[c] = 1,0,0,0
+
+            for c in closest_cards:
+                self.pr[c], self.pb[c], self.py[c], self.pa[c] = 1,0,0,0
+
+            maxv = -np.inf
+            maxc = None
+            
+            for c in sorted_cards:
+                if self.pr[c] >= self.guesser.guess_threshold:
+                    ev = self.pr[c]*EV[Color.TEAM] + self.pb[c]*EV[Color.OPPONENT] + self.py[c]*EV[Color.BYSTANDER] + self.pa[c]*EV[Color.ASSASSIN]
+                    if ev > maxv:
+                        maxv = ev
+                        maxc = c
+
+            if maxc is None:
+                if num_guesses_given > 0: break
+                for c in sorted_cards:
+                    ev = self.pr[c]*EV[Color.TEAM] + self.pb[c]*EV[Color.OPPONENT] + self.py[c]*EV[Color.BYSTANDER] + self.pa[c]*EV[Color.ASSASSIN]
+                    if ev > maxv:
+                        maxv = ev
+                        maxc = c
+
+            yield maxc
+            num_guesses_given+=1

@@ -17,9 +17,11 @@ class BayesianPathCreator(ExperimentPathCreator):
 
     def create_file_paths(self, filename_prefix):
         create_round_logs_files(self.experiment_paths, filename_prefix, self.experiment_settings.seed)
-        self._create_learn_log_paths(self.experiment_settings.seed, self.experiment_paths.learn_log_filepaths_cm)
+        self._create_learn_log_paths(filename_prefix, self.experiment_settings.seed, self.experiment_paths.learn_log_filepaths_cm, self.experiment_paths.learn_log_filepaths_g)
 
-    def _create_learn_log_paths(self, iteration, paths):
+    def _create_learn_log_paths(self, filename_prefix, iteration, paths_cm, paths_g):
         dir = self.experiment_paths.learn_logs_dir_path
-        this_name = f"{name_elements.LEARN_LOG_PREFIX}_{iteration}{name_elements.LEARN_LOG_FILE_TYPE}"
-        paths.append(join(dir, this_name))
+        this_name = f"{name_elements.LEARN_LOG_PREFIX}_{filename_prefix}_{iteration}_CM{name_elements.LEARN_LOG_FILE_TYPE}"
+        paths_cm.append(join(dir, this_name))
+        this_name = f"{name_elements.LEARN_LOG_PREFIX}_{filename_prefix}_{iteration}_G{name_elements.LEARN_LOG_FILE_TYPE}"
+        paths_g.append(join(dir, this_name))

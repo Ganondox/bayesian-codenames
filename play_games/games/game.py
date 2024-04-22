@@ -4,6 +4,7 @@ This file does the actual game simulation and logs the stats and returns some to
 authors: Kim et al., Spencer Brosnahan, and Dallin Hunter
 """
 
+import itertools
 import random
 import time
 from typing import TextIO
@@ -87,8 +88,10 @@ class Game:
             # spymaster gives clue & number here
             clue, clue_num = self._get_spymaster_clue()
             guesses = self._get_guesser_guesses(clue, clue_num)
-
-            for guess_num, guess_answer in enumerate(guesses[:clue_num], 1):
+            guesses_given = []
+            for guess_num, guess_answer in enumerate(guesses, 1):
+                if guess_num > clue_num+1: break
+                guesses_given.append(guess_answer)
                 guess_answer = guess_answer.lower().strip()
                 guess_answer_index = self.board_words.index(guess_answer)
                 color_guessed = self.key_grid[guess_answer_index]
@@ -102,7 +105,8 @@ class Game:
                     self.game_end_time = time.time()
                 if color_guessed != Color.TEAM: 
                     break
-                
+            
+            self.outfile.write(f"guesses: {guesses_given}\n")
             self.outfile.write(f"num_actual_guesses: {guess_num}\n")
             self.outfile.write('\n')
         self.outfile.write('\n')
@@ -173,21 +177,19 @@ class Game:
 
     def _get_spymaster_clue(self):
         clue_giving_start = time.time()
-        clue, targets = self.spymaster.generate_clue(self.red_words[:], self.clues_used.copy(), self.blue_words[:], self.assassin_word,  self.bystander_words[:])                                                   
-        self.outfile.write(f"clue: {clue}\ntargets: {targets}\nnum_targets: {len(targets)}\n")        
+        clue, num = self.spymaster.generate_clue(
+            {self.board_words[i]: color for i, color in enumerate(self.key_grid)}, 
+            [w for w in self.board_words if w not in self.previous_guesses], 
+        )                                                   
+        self.outfile.write(f"clue: {clue}\nnum_targets: {num}\n")        
         self.clues_used.add(clue)
         clue_giving_time = time.time() - clue_giving_start
         self.outfile.write(f"clue_generation_time: {clue_giving_time}\n")
 
-        return clue, len(targets)
+        return clue, num
 
     def _get_guesser_guesses(self, clue, clue_num):
-        guessing_start = time.time()
         guesses = self.guesser.guess_clue(clue, clue_num, self.previous_guesses)
-        self.outfile.write(f"guesses: {guesses}\n")
-        guessing_time = time.time() - guessing_start
-        self.outfile.write(f"guess_generation_time: {guessing_time}\n")
-
         return guesses
 
     
