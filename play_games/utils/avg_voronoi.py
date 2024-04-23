@@ -16,7 +16,7 @@ SPLIT = 500
 FOLDER = "voronoi"
 
 def generate_voronoi():
-    files = os.listdir(FOLDER)
+    files = [os.path.join(FOLDER, f) for f in os.listdir(FOLDER)]
 
     with open(files[0], "r") as f:
         data = json.load(f)
