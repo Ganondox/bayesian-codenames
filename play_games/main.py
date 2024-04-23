@@ -12,7 +12,7 @@ from play_games.configs.enums import ExperimentType
 #_______________ DEFAULT ARGUMENTS _______________#
 
 seed = 2000
-run_experiment = True
+run_experiment = False
 config_setting = "BAYES"
 iteration_range = None # None defaults to one found in config.ini
 
