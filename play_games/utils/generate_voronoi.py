@@ -61,7 +61,7 @@ def generate_voronoi(lms, noise, index, *, verbose = False):
 
 if __name__ == "__main__":
     from play_games.bots.types import LMType
-    LMS = [LMType.W2V, LMType.GLOVE_50, LMType.GLOVE_100, LMType.GLOVE_200, LMType.GLOVE_300, LMType.CN_NB, LMType.D2V, LMType.FAST_TEXT, LMType.W2V_GLOVE_50, LMType.ELMO]
+    LMS = [LMType.W2V_GLOVE_50, LMType.ELMO, LMType.W2V, LMType.GLOVE_50, LMType.GLOVE_100, LMType.GLOVE_200, LMType.GLOVE_300, LMType.CN_NB, LMType.D2V, LMType.FAST_TEXT, ]
     # "w2v distance associator", "glove 300 distance associator", "cn_nb distance associator", "d2v distance associator", "fast-text distance associator",
     #             "glove 100 distance associator", "glove 200 distance associator", "w2v_glove distance associator", "elmo distance associator"
     noises = [0, 0.25, 0.5, 0.75, 1]  
