@@ -1,7 +1,4 @@
-/stats/saved_results/learning_experiments/*
-/stats/saved_results/parameter_experiments/*
-/stats/saved_results/tournaments/*
-/stats/saved_results/bayesian_tournament/*
+/stats/saved_results/*
 
 /raw_data/*
 !/raw_data/.gitkeep

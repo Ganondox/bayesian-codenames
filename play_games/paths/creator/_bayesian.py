@@ -10,6 +10,8 @@ class BayesianPathCreator(ExperimentPathCreator):
         return ""
 
     def get_root_dir_extension(self):
+        if self.experiment_settings.custom_root_name:
+            return self.experiment_settings.custom_root_name
         return "bayesian_tournament"
 
     def create_directories(self, root_dir):
