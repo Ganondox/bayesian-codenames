@@ -46,12 +46,19 @@ class VectorDataCache:
         
     def vector(self, w):
         return vutils.concatenate(w, self.vectors)
+    
+    def values(self):
+        for k in self:
+            yield self.vector(k)
 
     def __getitem__(self, key):
         return self.vector(key)
 
     def __contains__(self, key):
         return key in self.vectors[0]
+    
+    def __iter__(self):
+        yield from self.vectors[0].__iter__()
     
     def distance_word(self, w1, w2):
         return _get_distance_from_cache(self.__key, w1, w2, self.vectors)

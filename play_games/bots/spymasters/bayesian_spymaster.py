@@ -123,6 +123,7 @@ class BayesianSpymaster:
         possible_clue_words = set()
         for guesser in self.guessers:
             possible_clue_words.update(*[guesser.associations[w] for w in boardwords])
+        possible_clue_words.difference_update(boardwords)
         return list(possible_clue_words)    
 
     def generate_clue(self, card_teams, boardwords)->tuple[str, list[str]]:

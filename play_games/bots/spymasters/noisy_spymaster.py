@@ -67,6 +67,7 @@ class NoisySpymaster(Spymaster):
     def get_possible_clues(self, boardwords, state=None):
         possible_clue_words = set()
         possible_clue_words.update(*[self.associations[w] for w in boardwords if state is None or state[w] == Color.TEAM])
+        possible_clue_words.difference_update(self.boardwords)
         return list(possible_clue_words)
     
     def _add_noise(self, word):

@@ -53,3 +53,5 @@ class ExperimentPaths:
 ###---Word Pools---###
 wordlist_path = os.path.join(project_root, 'raw_data', 'actual-final-wl.txt')
 board_words_path = os.path.join(project_root, 'raw_data', 'common_boardwords.txt')
+
+voronoi_stats_path = os.path.join(project_root, 'stats', 'voronoi.json')

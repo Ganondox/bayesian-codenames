@@ -53,10 +53,11 @@ def _parse_argv(argv):
         iteration_range = [int(argv[2]), int(argv[3])]
 
 def _setup_settings():
+    global experiment_settings
     if config_setting: experiment_settings.config_setting = config_setting
     experiment_settings.setup()
     if iteration_range: experiment_settings.iteration_range = iteration_range
-    if seed: experiment_settings.seed = seed
+    if seed is not None: experiment_settings.seed = seed
     
     # Generate new file paths
     file_runner.generate_file_paths()

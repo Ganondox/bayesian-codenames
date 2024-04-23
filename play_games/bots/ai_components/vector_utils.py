@@ -1,5 +1,6 @@
 import numpy as np
 from json import load
+from play_games.paths import file_paths
 
 def load_vectors(path:str):
     with open(path, "r", encoding="utf-8") as infile:
@@ -31,6 +32,15 @@ def get_perturbed_euclid_distances(clue_emb, embeddings, std, k):
     distances = np.apply_along_axis(get_normal, 1, embeddings)
 
     return noisy_embeddings, distances.T
+
+def get_voronoi_distr(lm, word1, word2, noise):
+    if noise not in VORONOI_STATS[lm]: return int(word1 == word2)
+    return VORONOI_STATS[noise][word1].get(word2, 0)
+
+with open(file_paths.voronoi_stats_path, "r") as f:
+    VORONOI_STATS = load(f)
+    VORONOI_STATS = {float(k):v for k,v in VORONOI_STATS.items()}
+
 
 if __name__ == "__main__":
     vectors = [v[:200] for v in load_vectors("./raw_data/w2v_lm.txt").values()]
