@@ -39,7 +39,7 @@ def get_voronoi_distr(lm, word1, word2, noise):
 
 with open(file_paths.voronoi_stats_path, "r") as f:
     VORONOI_STATS = load(f)
-    VORONOI_STATS = {float(k):v for k,v in VORONOI_STATS.items()}
+    VORONOI_STATS = {k: {float(k2): v2 for k2, v2 in v.items()} for k,v in VORONOI_STATS.items()}
 
 
 if __name__ == "__main__":

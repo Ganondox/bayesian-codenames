@@ -36,7 +36,7 @@ def get_lm_data(lm, noise, samples, index):
     print(lm)
     for i, w in enumerate(list(vectors)[start: end]):
         count = {}
-        words = assocs[w]
+        words = assocs[w][:]
         words.append(w)
         vecs = np.array([vectors[a] for a in words])
         print(i)
