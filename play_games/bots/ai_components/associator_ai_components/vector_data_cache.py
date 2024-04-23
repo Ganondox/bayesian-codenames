@@ -59,6 +59,9 @@ class VectorDataCache:
     
     def __iter__(self):
         yield from self.vectors[0].__iter__()
+
+    def __len__(self):
+        return self.vectors[0].__len__()
     
     def distance_word(self, w1, w2):
         return _get_distance_from_cache(self.__key, w1, w2, self.vectors)

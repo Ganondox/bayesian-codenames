@@ -11,13 +11,16 @@ from play_games.paths import bot_paths
 from play_games.bots.ai_components import vector_utils
 from multiprocessing import Pool
 
+SPLIT = 500
+
 def noisy(w, words, vecs,  vectors, noise):
     if noisy == 0: return w
     vec = vector_utils.perturb_embedding(vectors[w], noise)
     distances = np.linalg.norm(vecs-vec, axis=1)
     return words[distances.argmin()]
 
-def get_lm_data(lm, noise, samples):
+def get_lm_data(lm, noise, samples, index):
+    
     lm_data = {}
     vec_path, assoc_path = bot_paths.get_vector_path_for_lm(lm), bot_paths.get_association_path_for_lm(lm)
     if isinstance(vec_path, (tuple, list)):
@@ -26,10 +29,12 @@ def get_lm_data(lm, noise, samples):
         vectors = VectorDataCache(vec_path)
     assocs = AssociatorDataCache(assoc_path)
     assocs.load_cache(500)
+    start = len(vectors)//SPLIT * index
+    end = start + len(vectors)//SPLIT
     # words = list(vectors)
     # vecs = np.array([vectors[a] for a in words])
     print(lm)
-    for i, w in enumerate(vectors):
+    for i, w in enumerate(list(vectors)[start: end]):
         count = {}
         words = assocs[w]
         vecs = np.array([vectors[a] for a in words])
@@ -46,11 +51,11 @@ def get_lm_data(lm, noise, samples):
     return lm_data
 
 
-def generate_voronoi(lms, noise, *, verbose = False):
+def generate_voronoi(lms, noise, index, *, verbose = False):
     SAMPLES = 1000
-    with Pool(8) as pool:
+    with Pool(5) as pool:
         result = {}
-        for lm, data in zip(lms, pool.starmap(get_lm_data, [ (lm, noise, SAMPLES) for lm in lms])):
+        for lm, data in zip(lms, pool.starmap(get_lm_data, [ (lm, noise, SAMPLES, index) for lm in lms])):
             result[lm] = data
     return result
 
@@ -62,10 +67,15 @@ if __name__ == "__main__":
     noises = [0, 0.25, 0.5, 0.75, 1]  
     results = {}
 
+    index = int(sys.argv[1])
+
     for noise in noises:  
-        data = generate_voronoi(LMS, noise, verbose=True)
+        data = generate_voronoi(LMS, noise, index, verbose=True)
         for lm in data:
             results.setdefault(lm, {})[noise] = data[lm]
 
-    with open("Voronoi.json", "w") as f:
+
+    import os
+    os.makedirs("voronoi", exist_ok=True)
+    with open(f"voronoi/voronoi.{index}.json", "w") as f:
         json.dump(results, f)
