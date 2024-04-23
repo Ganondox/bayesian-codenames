@@ -45,7 +45,7 @@ words = utils.load_word_list(file_paths.board_words_path)
 GAMES_TO_PLAY = 50
 SEED = 2050
 CODEMASTER = BotType.D2V_DISTANCE_ASSOCIATOR #BotType.W2V_GLOVE_DISTANCE_ASSOCIATOR
-GUESSER = BotType.FAST_TEXT_BASELINE_GUESSER
+GUESSER = BotType.D2V_BASELINE_GUESSER
 os.environ['MKL_VERBOSE']="1"
 
 def get_bot_settings(b_type):
@@ -150,8 +150,8 @@ if __name__ == '__main__':
     random.seed(SEED)
     bot_settings = get_bot_settings(CODEMASTER)
     bot_settings.BOT_TYPE_G = get_lm(GUESSER)
-    bot_settings.NOISE_SM = 1
-    bot_settings.NOISE_G = 1
+    bot_settings.NOISE_SM = 0
+    bot_settings.NOISE_G = 0
     test_cm, bayes_g = obj.bot_initializer.init_bots(BotType.NOISY_SPYMASTER, BotType.BAYESIAN_GUESSER, bot_settings)
     _, test_g = obj.bot_initializer.init_bots(None, BotType.W2V_BASELINE_GUESSER, bot_settings)
     bot_settings = get_bot_settings(CODEMASTER)
