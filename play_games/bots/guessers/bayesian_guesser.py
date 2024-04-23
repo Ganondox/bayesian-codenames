@@ -75,7 +75,7 @@ class BayesianGuesser:
                 ptw = 0
                 for m_i, m in enumerate(self.spymasters):
                     l_t, _ = m.generate_clue(w, bw_t)
-                    pt = vector_utils.get_voronoi_distr(self.lm, l_t, clue_t, self.noise)
+                    pt = vector_utils.get_voronoi_distr(m.lm, l_t, clue_t, self.noise)
                     ptw += pt * self.spymaster_posterior[m_i]
                 state_likelihood[w_hash] *= ptw
             state_posterior*=state_likelihood
@@ -83,7 +83,7 @@ class BayesianGuesser:
         for m_i, m in enumerate(self.spymasters):
             for w_hash, w in enumerate(samples):
                 l, _ = m.generate_clue(w, self.current_boardwords)
-                p = vector_utils.get_voronoi_distr(self.lm, l, clue, self.noise)
+                p = vector_utils.get_voronoi_distr(m.lm, l, clue, self.noise)
            
                 spymaster_likelihood[m_i] += p * state_posterior[w_hash] 
                 state_likelihood[w_hash] += p * self.spymaster_posterior[m_i]

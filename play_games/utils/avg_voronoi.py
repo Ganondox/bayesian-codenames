@@ -21,8 +21,9 @@ def generate_voronoi():
     with open(files[0], "r") as f:
         data = json.load(f)
 
-    for file in files[1:]:
-        with open(files[0], "r") as f:
+    for i, file in enumerate(files[1:]):
+        print(i, file)
+        with open(file, "r") as f:
             temp = json.load(f)
         
         for lm, v in temp.items():

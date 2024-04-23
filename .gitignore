@@ -37,3 +37,5 @@ _Archive/
 /.idea
 /.vscode
 .DS_Store
+
+/stats/voronoi.json

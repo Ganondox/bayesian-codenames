@@ -4,6 +4,7 @@ if __name__ == "__main__":
 
 from collections import Counter
 import json
+import math
 import numpy as np
 from play_games.bots.ai_components.associator_ai_components.associator_data_cache import AssociatorDataCache
 from play_games.bots.ai_components.associator_ai_components.vector_data_cache import VectorDataCache
@@ -29,8 +30,9 @@ def get_lm_data(lm, noise, samples, index):
         vectors = VectorDataCache(vec_path)
     assocs = AssociatorDataCache(assoc_path)
     assocs.load_cache(500)
-    start = len(vectors)//SPLIT * index
-    end = start + len(vectors)//SPLIT
+    size = math.ceil(len(vectors)/SPLIT)
+    start = size * index
+    end = start + size
     # words = list(vectors)
     # vecs = np.array([vectors[a] for a in words])
     print(lm)

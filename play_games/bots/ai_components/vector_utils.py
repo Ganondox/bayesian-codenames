@@ -35,7 +35,7 @@ def get_perturbed_euclid_distances(clue_emb, embeddings, std, k):
 
 def get_voronoi_distr(lm, word1, word2, noise):
     if noise not in VORONOI_STATS[lm]: return int(word1 == word2)
-    return VORONOI_STATS[noise][word1].get(word2, 0)
+    return VORONOI_STATS[lm][noise][word1].get(word2, 0)
 
 with open(file_paths.voronoi_stats_path, "r") as f:
     VORONOI_STATS = load(f)
