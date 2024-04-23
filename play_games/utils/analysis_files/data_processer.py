@@ -94,7 +94,7 @@ class DataProcessor:
     def calculate_flips_by_game(self, parsed_data, key, lp, cm, g):
         curr_pos = 0
         flips_in_game = []
-        for rounds_in_game in parsed_data[lp][cm][g][Stats.NUM_ROUNDS_PER_GAME]:
+        for rounds_in_game in parsed_data[lp][cm][g][Stats.NUM_ROUNDS_PER_GAME][:1]:
             flipped_in_game = 0
             for i in range(curr_pos, curr_pos + rounds_in_game):
                 flipped_in_game += parsed_data[lp][cm][g][key][i]
