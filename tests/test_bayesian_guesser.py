@@ -50,7 +50,7 @@ os.environ['MKL_VERBOSE']="1"
 
 def get_bot_settings(b_type):
     bot_settings = BotSettingsObj()
-    bot_settings.N_ASSOCIATIONS = 500
+    bot_settings.N_ASSOCIATIONS = 300
     bot_settings.CONSTRUCTOR_PATHS = bot_paths.get_paths_for_bot(b_type)
     bot_settings.BOT_TYPE_SM = get_lm(b_type)
     bot_settings.SAMPLE_SIZE_SM = 10

@@ -8,7 +8,7 @@ from play_games.games.enums import Color
 from play_games.paths import bot_paths
 
 
-LANGUAGE_MODELS = [LMType.W2V, LMType.GLOVE_300, LMType.CN_NB, LMType.D2V, LMType.FAST_TEXT]
+LANGUAGE_MODELS = [LMType.W2V, LMType.GLOVE_300, LMType.CN_NB, LMType.D2V]
 
 class InternalGuesser:
 
