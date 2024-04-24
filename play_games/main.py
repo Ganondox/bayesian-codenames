@@ -12,8 +12,8 @@ from play_games.configs.enums import ExperimentType
 #_______________ DEFAULT ARGUMENTS _______________#
 
 seed = 1
-run_experiment = False
-config_setting = "BAYES"
+run_experiment = True
+config_setting = "BAYES_COMBO"
 iteration_range = None # None defaults to one found in config.ini
 
 

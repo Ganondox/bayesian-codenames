@@ -69,6 +69,9 @@ class BayesianGuesser:
         state_posterior = np.full_like(state_likelihood, 1/self.samples)
         spymaster_likelihood = np.ones(len(self.spymasters))
 
+        if self.sampler.team_left < 3:
+            pass
+
         for clue_t, bw_t, _ in self.history:
             if clue_t == None: continue
             for w_hash, w in enumerate(samples):
@@ -155,7 +158,7 @@ class GuessIterator:
         best_spymaster = np.argmax(self.guesser.spymaster_posterior)
         best_spymaster = self.guesser.spymasters[best_spymaster]
         self.guesser.log(f"SM selected: {best_spymaster}\n")
-
+        if self.guesser.verbose_print: print(best_spymaster)
         while num_guesses_given <= self.num_guess:
             if self.guesser.sampler.team_left == 0: break
             empty = {w:0 for w in self.guesser.current_boardwords}

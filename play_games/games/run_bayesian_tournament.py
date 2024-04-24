@@ -54,9 +54,9 @@ class RunBayesianTournament:
         n = self.exp_settings.n_games 
         
         for b1, b2 in itertools.product(spymasters, guessers):
-            if get_ai(b1) == get_ai(b2) == AIType.BAYESIAN: continue
-            noises_cm = np.linspace(0, 1, 5)
-            noises_g = np.linspace(0, 1, 5)
+            # if get_ai(b1) == get_ai(b2) == AIType.BAYESIAN: continue
+            noises_cm = [0, 1] #np.linspace(0, 1, 5)
+            noises_g = [0, 1]#np.linspace(0, 1, 5)
             bayes_g = ((0, 1), (1, 0), (0.5, 0.5))
             for noise_cm, noise_g in itertools.product(noises_cm, noises_g):
                 if get_ai(b2) == AIType.BAYESIAN:
