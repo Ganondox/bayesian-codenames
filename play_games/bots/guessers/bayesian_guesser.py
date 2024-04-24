@@ -101,8 +101,8 @@ class BayesianGuesser:
 
         if (total:= state_posterior.sum()) != 0:
             state_posterior /= total
-        if (total:= self.spymaster_posterior.sum()) != 0:
-            self.spymaster_posterior /= total
+        # if (total:= self.spymaster_posterior.sum()) != 0:
+        #     self.spymaster_posterior /= total
         self.log(
             f"State Posterior: {state_posterior}\n"
             f"Spymaster Posterior: {self.spymaster_posterior}\n"

@@ -32,7 +32,7 @@ class NoisySpymaster(Spymaster):
 
     def load_dict(self, boardwords):
         self.boardwords = list(boardwords)
-        possible_clues = self.get_possible_clues(boardwords)
+        possible_clues = self.get_possible_clues(boardwords, exclude=False)
         self.sorted_words = {
             clue:
             heapq.nsmallest(9, [(self.vectors.distance_word(clue, w), w) for w in boardwords])
@@ -44,30 +44,34 @@ class NoisySpymaster(Spymaster):
         boardwords = set(boardwords)
         max_clue_word, max_size_num, min_dist = None, 0, float('inf')
         num_player = sum(1 for w in boardwords if state[w] == Color.TEAM)
+        max_targets = None
         for clue in possible_clues:
             num = 0
             dist = 0
+            targets = []
             for d, w in self.sorted_words[clue]:
                 if w not in boardwords: continue
                 if num == num_player or state[w] != Color.TEAM: break
                 num+=1
                 dist+=d
+                targets.append(w)
 
             if num != 0 and num >= max_size_num and (num != max_size_num or dist < min_dist):
                 max_clue_word, max_size_num, min_dist = clue, num, dist
+                max_targets = targets
             
         if max_clue_word == None:
             max_clue_word, max_size_num = random.choice(possible_clues), 1
-        
+        # print(max_targets)        
         return self._add_noise(max_clue_word), max_size_num
 
     def give_feedback(self, guess: str, color: Color, end_status):
         pass
 
-    def get_possible_clues(self, boardwords, state=None):
+    def get_possible_clues(self, boardwords, state=None, exclude=True):
         possible_clue_words = set()
         possible_clue_words.update(*[self.associations[w] for w in boardwords if state is None or state[w] == Color.TEAM])
-        possible_clue_words.difference_update(self.boardwords)
+        if exclude: possible_clue_words.difference_update(self.boardwords)
         return list(possible_clue_words)
     
     def _add_noise(self, word):

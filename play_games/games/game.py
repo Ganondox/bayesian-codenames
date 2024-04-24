@@ -90,7 +90,7 @@ class Game:
             guesses = self._get_guesser_guesses(clue, clue_num)
             guesses_given = []
             for guess_num, guess_answer in enumerate(guesses, 1):
-                if guess_num > clue_num+1: break
+                if guess_num > clue_num+1 or game_condition != GameCondition.CONTINUE: break
                 guesses_given.append(guess_answer)
                 guess_answer = guess_answer.lower().strip()
                 guess_answer_index = self.board_words.index(guess_answer)
