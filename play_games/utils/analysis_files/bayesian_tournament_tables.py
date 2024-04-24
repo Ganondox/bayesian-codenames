@@ -101,10 +101,10 @@ if __name__ == "__main__" :
     #     print("No arguments given")
     #     exit(-1)
 
-    # output_folder = arguments[0]
-    output_folder = "outt"
-    # input_files = arguments[1:]
-    input_files = [os.path.join(r"C:\Users\Researcher\Downloads\PROCESSED\stats\saved_results\100_bayesian\processed_data", a) for a in os.listdir(r"C:\Users\Researcher\Downloads\PROCESSED\stats\saved_results\100_bayesian\processed_data")]
+    output_folder = arguments[0]
+    # output_folder = "outt"
+    input_files = arguments[1:]
+    # input_files = [os.path.join(r"C:\Users\Researcher\Downloads\PROCESSED\stats\saved_results\100_bayesian\processed_data", a) for a in os.listdir(r"C:\Users\Researcher\Downloads\PROCESSED\stats\saved_results\100_bayesian\processed_data")]
 
 
     labels = ("win_times", "win_rates", "turns_per_game", "team_words_per_game", "opponent_words_per_game", "bystander_words_per_game", "assassin_words_per_game")
