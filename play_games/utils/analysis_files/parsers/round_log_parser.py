@@ -28,11 +28,15 @@ class RoundLogParser:
             bwf = 0
             bywf = 0
             awf = 0
+            game_finished = False
             while (line:= f.readline()):
                 line = line.strip()
-                values = line.split(": ")
+                values = line.split(": ", maxsplit=1)
 
                 i = 0
+
+                if curr_cm == "noisy spymaster:cn_nb:0.25" and curr_g == "bayesian guesser:0.75:0.5:0.5":
+                    pass
 
                 
                 if values[0] == RoundParseKeys.SPYMASTER:
@@ -50,20 +54,21 @@ class RoundLogParser:
                         stat_dict[curr_cm][curr_g][Stats.CLUE_NUM_BY_ROUND] = []
                     stat_dict[curr_cm][curr_g][Stats.CLUE_NUM_BY_ROUND].append(int(values[1]))
 
-                if values[0] == RoundParseKeys.CORRECT:
+                if values[0] == RoundParseKeys.CORRECT and not game_finished:
                     rwf += 1
-                if values[0] == RoundParseKeys.BLUE:
+                if values[0] == RoundParseKeys.BLUE and not game_finished:
                     bwf += 1
-                if values[0] == RoundParseKeys.BYSTANDER:
+                if values[0] == RoundParseKeys.BYSTANDER and not game_finished:
                     bywf += 1
-                if values[0] == RoundParseKeys.ASSASSIN:
+                if values[0] == RoundParseKeys.ASSASSIN and not game_finished:
                     awf += 1
                 
                 if values[0] == RoundParseKeys.ROUND:
                     curr_round = values[1]
+                    game_finished = False
 
                 if (values[0] == RoundParseKeys.ROUND and values[1] != '1') or values[0] == RoundParseKeys.GAME_LOST \
-                    or values[0] == RoundParseKeys.GAME_WON:
+                    or values[0] == RoundParseKeys.GAME_WON and not game_finished:
                 
                     #Update the stats that are needed at the end of a round
                     if Stats.RED_WORDS_FLIPPED_BY_ROUND not in stat_dict[curr_cm][curr_g]:
@@ -86,19 +91,21 @@ class RoundLogParser:
                     stat_dict[curr_cm][curr_g][Stats.ASSASSIN_WORDS_FLIPPED_BY_ROUND].append(awf) 
                     awf = 0
 
-                if values[0] == RoundParseKeys.GAME_WON or values[0] == RoundParseKeys.GAME_LOST:
+                    if values[0] == RoundParseKeys.GAME_WON or values[0] == RoundParseKeys.GAME_LOST and not game_finished:
+                        #Update stats that are needed at the end of the game
+                        if Stats.GAME_WIN_LOSS not in stat_dict[curr_cm][curr_g]:
+                            stat_dict[curr_cm][curr_g][Stats.GAME_WIN_LOSS] = []
+                        if Stats.NUM_ROUNDS_PER_GAME not in stat_dict[curr_cm][curr_g]:
+                            stat_dict[curr_cm][curr_g][Stats.NUM_ROUNDS_PER_GAME] = []
+                        stat_dict[curr_cm][curr_g][Stats.NUM_ROUNDS_PER_GAME].append(int(curr_round))
 
-                    #Update stats that are needed at the end of the game
-                    if Stats.GAME_WIN_LOSS not in stat_dict[curr_cm][curr_g]:
-                        stat_dict[curr_cm][curr_g][Stats.GAME_WIN_LOSS] = []
-                    if Stats.NUM_ROUNDS_PER_GAME not in stat_dict[curr_cm][curr_g]:
-                        stat_dict[curr_cm][curr_g][Stats.NUM_ROUNDS_PER_GAME] = []
-                    stat_dict[curr_cm][curr_g][Stats.NUM_ROUNDS_PER_GAME].append(int(curr_round))
+                        if values[0] == RoundParseKeys.GAME_WON and not game_finished:
+                            stat_dict[curr_cm][curr_g][Stats.GAME_WIN_LOSS].append(1)
+                        if values[0] == RoundParseKeys.GAME_LOST and not game_finished:
+                            stat_dict[curr_cm][curr_g][Stats.GAME_WIN_LOSS].append(0)
 
-                if values[0] == RoundParseKeys.GAME_WON:
-                    stat_dict[curr_cm][curr_g][Stats.GAME_WIN_LOSS].append(1)
-                if values[0] == RoundParseKeys.GAME_LOST:
-                    stat_dict[curr_cm][curr_g][Stats.GAME_WIN_LOSS].append(0)
+                        game_finished = True
+
 
         self.stat_dict[counter] = stat_dict
                     

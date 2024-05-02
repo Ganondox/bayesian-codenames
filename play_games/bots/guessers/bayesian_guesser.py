@@ -69,19 +69,16 @@ class BayesianGuesser:
         state_posterior = np.full_like(state_likelihood, 1/self.samples)
         spymaster_likelihood = np.ones(len(self.spymasters))
 
+        if self.sampler.team_left < 3:
+            pass
+
         for clue_t, bw_t, _ in self.history:
             if clue_t == None: continue
             for w_hash, w in enumerate(samples):
                 ptw = 0
                 for m_i, m in enumerate(self.spymasters):
                     l_t, _ = m.generate_clue(w, bw_t)
-                    if self.noise == 0:
-                        pt = 1 if l_t == clue_t else 0
-                    else:
-                        z = (m.vectors[clue_t] - m.vectors[l_t])/self.noise
-                        z[z>0]*=-1
-                        densities = np.log(2) + norm.logcdf(z)
-                        pt = np.exp(np.sum(densities)) # This would be replaced with a more accurate Voronoi based thingy
+                    pt = vector_utils.get_voronoi_distr(m.lm, l_t, clue_t, self.noise)
                     ptw += pt * self.spymaster_posterior[m_i]
                 state_likelihood[w_hash] *= ptw
             state_posterior*=state_likelihood
@@ -89,14 +86,7 @@ class BayesianGuesser:
         for m_i, m in enumerate(self.spymasters):
             for w_hash, w in enumerate(samples):
                 l, _ = m.generate_clue(w, self.current_boardwords)
-                if self.noise == 0:
-                    p =  1 if l == clue else 0
-                else:
-                    z = (m.vectors[clue] - m.vectors[l])/self.noise
-                    z[z>0]*=-1
-                    densities = np.log(2) + norm.logcdf(z)
-                    p = np.sum(densities) # This would be replaced with a more accurate Voronoi based thingy
-                    p = np.exp(p)
+                p = vector_utils.get_voronoi_distr(m.lm, l, clue, self.noise)
            
                 spymaster_likelihood[m_i] += p * state_posterior[w_hash] 
                 state_likelihood[w_hash] += p * self.spymaster_posterior[m_i]
@@ -114,8 +104,8 @@ class BayesianGuesser:
 
         if (total:= state_posterior.sum()) != 0:
             state_posterior /= total
-        if (total:= self.spymaster_posterior.sum()) != 0:
-            self.spymaster_posterior /= total
+        # if (total:= self.spymaster_posterior.sum()) != 0:
+        #     self.spymaster_posterior /= total
         self.log(
             f"State Posterior: {state_posterior}\n"
             f"Spymaster Posterior: {self.spymaster_posterior}\n"
@@ -168,7 +158,7 @@ class GuessIterator:
         best_spymaster = np.argmax(self.guesser.spymaster_posterior)
         best_spymaster = self.guesser.spymasters[best_spymaster]
         self.guesser.log(f"SM selected: {best_spymaster}\n")
-
+        if self.guesser.verbose_print: print(best_spymaster)
         while num_guesses_given <= self.num_guess:
             if self.guesser.sampler.team_left == 0: break
             empty = {w:0 for w in self.guesser.current_boardwords}

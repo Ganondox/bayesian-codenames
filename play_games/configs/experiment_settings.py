@@ -52,7 +52,7 @@ class ExperimentSettings:
 
     n_games: int
     board_size: int
-    seed: float | int | str 
+    seed: float | int | str = 0
     spymasters: list[BotType]
     guessers: list[BotType]
 

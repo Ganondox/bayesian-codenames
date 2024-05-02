@@ -12,7 +12,7 @@ class FileAlignmentChecker:
         round_logs = self.paths.round_log_filepaths
         cm_learn_logs = self.paths.learn_log_filepaths_cm 
         g_learn_logs = self.paths.learn_log_filepaths_g
-        pattern = r"_(\d+).txt"
+        pattern = r"_(\d+).*\.txt"
 
         c = 0
         #I'll just assume there is a learn log of each type for each experiment for now

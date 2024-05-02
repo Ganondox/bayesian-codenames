@@ -108,7 +108,7 @@ def bin_search(obj, ls)->int:
     return high
 
 if __name__ == "__main__":
-    lms = ['w2v', 'bert1', 'bert2', 'd2v', 'elmo','fast-text', 'glove_50', 'glove_100', 'glove_200', 'glove_300', 'w2v_glove']
+    lms = ['w2v', 'bert1', 'bert2', 'd2v', 'elmo','fast-text', 'glove_50', 'glove_100', 'glove_200', 'glove_300', 'w2v_glove', 'conceptnet-numberbatch']
     all_words = set()
     for lm in lms:
         vectors = fr"raw_data/{lm}_lm.txt"
